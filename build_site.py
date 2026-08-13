@@ -9,10 +9,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 SITE = ROOT / "site"
 
+# Prefer pruned practical list; backup is the full unpruned source.
 CANDIDATES = [
-    ROOT / "面试常用单词_Java_Python_FastAPI_LangChain.backup.xlsx",
-    ROOT / "vocab.xlsx",
     ROOT / "面试常用单词_Java_Python_FastAPI_LangChain.xlsx",
+    ROOT / "vocab.xlsx",
+    ROOT / "面试常用单词_Java_Python_FastAPI_LangChain.backup.xlsx",
     Path(r"e:\Users\i\Desktop\专高六\面试常用单词_Java_Python_FastAPI_LangChain.xlsx"),
 ]
 

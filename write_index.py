@@ -23,7 +23,7 @@ html = f"""<!DOCTYPE html>
 <header class="hero">
   <div class="kicker">Interview Vocabulary Index</div>
   <h1>面试常用单词，<em>随手一查</em>。</h1>
-  <p class="lede">收录 Java / Python / FastAPI / LangChain / RAG / Transformer / OpenCV / AI 编程工具等技术面试高频词条，含音标、谐音速记与一句话回答。点击喇叭图标可听发音。</p>
+  <p class="lede">精选技术面试高频词：Java / Python / FastAPI / LangChain / RAG / Transformer 等八股与 API，含音标、谐音速记与一句话回答。已去掉生僻少用词，点击喇叭可听发音。</p>
   <div class="stats" id="stats">
     <div class="stat"><b id="statTotal">—</b><span>词条总数</span></div>
     <div class="stat"><b id="statTech">—</b><span>技术栈</span></div>
