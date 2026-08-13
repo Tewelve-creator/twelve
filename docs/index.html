@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面试常用单词卡 · 在线速查</title>
+<meta name="description" content="Java / Python / FastAPI / LangChain / RAG / Transformer / OpenCV / AI 编程工具面试常用单词在线速查表">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f1ead9;
+    --paper-raised:#f8f2e4;
+    --ink:#2a251d;
+    --ink-soft:#6b6252;
+    --ink-faint:#a89d87;
+    --line:#d9cdae;
+    --brand:#2c5c53;
+    --brand-dark:#1c3f39;
+    --tag-a:#a8432a;   /* 必问 */
+    --tag-a-bg:#f3ddd2;
+    --tag-b:#b9852a;   /* 常问 */
+    --tag-b-bg:#f4e6c8;
+    --tag-c:#5f7256;   /* 了解 */
+    --tag-c-bg:#e4e8db;
+    --shadow: 0 1px 0 rgba(42,37,29,.06);
+    --radius: 14px;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background: var(--paper);
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(42,37,29,.05) 1px, transparent 0);
+    background-size: 22px 22px;
+    color: var(--ink);
+    font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  a{ color: var(--brand-dark); }
+
+  .wrap{ max-width: 1080px; margin: 0 auto; padding: 0 20px 80px; }
+
+  header.hero{
+    padding: 56px 20px 28px;
+    max-width: 1080px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .kicker{
+    font-family:"IBM Plex Mono", monospace;
+    font-size: .72rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--brand-dark);
+    display:flex; align-items:center; gap:10px;
+    margin-bottom: 14px;
+  }
+  .kicker::before{
+    content:"";
+    width:26px; height:1px; background: var(--brand-dark); opacity:.6;
+  }
+  h1{
+    font-family:"Fraunces", serif;
+    font-weight: 600;
+    font-size: clamp(2.1rem, 5vw, 3.4rem);
+    line-height: 1.05;
+    margin: 0 0 14px;
+    letter-spacing: -.01em;
+  }
+  h1 em{
+    font-style: italic;
+    font-weight: 500;
+    color: var(--brand-dark);
+  }
+  .lede{
+    max-width: 620px;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    line-height: 1.65;
+    margin: 0 0 26px;
+  }
+  .stats{
+    display:flex; flex-wrap:wrap; gap: 28px;
+    border-top: 1px solid var(--line);
+    padding-top: 18px;
+  }
+  .stat b{
+    font-family:"Fraunces", serif;
+    font-size: 1.5rem;
+    display:block;
+    color: var(--ink);
+  }
+  .stat span{
+    font-size: .74rem;
+    color: var(--ink-faint);
+    letter-spacing: .04em;
+  }
+
+  .panel{
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin-bottom: 22px;
+    box-shadow: var(--shadow);
+  }
+  .search-row{
+    display:flex; gap: 10px; margin-bottom: 14px;
+  }
+  .search-row input{
+    flex:1;
+    font: inherit;
+    font-size: 1rem;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--ink);
+  }
+  .search-row input:focus{
+    outline: 2px solid var(--brand);
+    outline-offset: 1px;
+  }
+  .chip-groups{ display:flex; flex-direction:column; gap: 10px; }
+  .chip-group{ display:flex; align-items:flex-start; gap: 10px; flex-wrap:wrap; }
+  .chip-group .label{
+    font-family:"IBM Plex Mono", monospace;
+    font-size: .68rem;
+    color: var(--ink-faint);
+    letter-spacing:.06em;
+    padding-top: 7px;
+    min-width: 58px;
+  }
+  .chips{ display:flex; flex-wrap:wrap; gap: 8px; }
+  .chip{
+    font-size: .82rem;
+    padding: 6px 13px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--ink-soft);
+    cursor: pointer;
+    user-select:none;
+    transition: transform .12s ease, background .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .chip:hover{ transform: translateY(-1px); border-color: var(--brand); }
+  .chip.active{
+    background: var(--brand-dark);
+    border-color: var(--brand-dark);
+    color: #f1ead9;
+  }
+  .chip.level-必问.active{ background: var(--tag-a); border-color: var(--tag-a); }
+  .chip.level-常问.active{ background: var(--tag-b); border-color: var(--tag-b); }
+  .chip.level-了解.active{ background: var(--tag-c); border-color: var(--tag-c); }
+  .chip .n{ opacity:.65; font-family:"IBM Plex Mono",monospace; font-size:.72em; margin-left:4px; }
+
+  .result-bar{
+    display:flex; justify-content:space-between; align-items:baseline;
+    margin-bottom: 12px; color: var(--ink-faint); font-size: .82rem;
+  }
+  .result-bar strong{ color: var(--ink); font-family:"IBM Plex Mono", monospace; }
+  .reset-link{
+    font-size:.8rem; color: var(--brand-dark); text-decoration:underline; cursor:pointer; background:none; border:none; font-family:inherit;
+  }
+
+  .list{ display:flex; flex-direction:column; gap: 10px; }
+  .card{
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px 18px;
+    display: grid;
+    grid-template-columns: 200px 1fr 150px;
+    gap: 18px;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .card:hover{ border-color: var(--brand); box-shadow: 0 4px 16px rgba(42,37,29,.08); }
+
+  .card .word-col{ display:flex; flex-direction:column; gap:6px; }
+  .word-line{ display:flex; align-items:center; gap:8px; }
+  .word{
+    font-family:"Fraunces", serif;
+    font-weight: 600;
+    font-size: 1.25rem;
+  }
+  .speak-btn{
+    width: 26px; height:26px; border-radius:50%;
+    border: 1px solid var(--line);
+    background:#fff;
+    color: var(--brand-dark);
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+    padding:0;
+    transition: background .15s ease, transform .1s ease;
+  }
+  .speak-btn:hover{ background: var(--brand-dark); color:#f1ead9; }
+  .speak-btn:active{ transform: scale(.92); }
+  .speak-btn svg{ width:12px; height:12px; }
+  .phonetic{
+    font-family:"IBM Plex Mono", monospace;
+    font-size: .78rem;
+    color: var(--ink-soft);
+  }
+  .phonetic .homo{ color: var(--ink-faint); margin-left:6px; }
+  .cat-tag{
+    font-size:.68rem; color: var(--ink-faint);
+    letter-spacing:.04em;
+  }
+
+  .card .body-col{ display:flex; flex-direction:column; gap:8px; min-width:0; }
+  .explain{ font-size: .94rem; line-height:1.55; color: var(--ink); }
+  .explain mark{ background: #f4e6c8; color: var(--ink); padding: 0 2px; border-radius:2px; }
+  .oneliner{
+    font-size: .84rem; color: var(--ink-soft);
+    border-left: 2px solid var(--line);
+    padding-left: 10px;
+    line-height:1.5;
+  }
+  .compare{ font-size:.78rem; color: var(--ink-faint); }
+  .compare b{ color: var(--ink-soft); font-weight:600; }
+
+  .card .meta-col{ display:flex; flex-direction:column; align-items:flex-end; gap:8px; text-align:right; }
+  .level-badge{
+    font-size:.72rem; padding:4px 10px; border-radius:999px; font-weight:600;
+  }
+  .level-badge.必问{ background: var(--tag-a-bg); color: var(--tag-a); }
+  .level-badge.常问{ background: var(--tag-b-bg); color: var(--tag-b); }
+  .level-badge.了解{ background: var(--tag-c-bg); color: var(--tag-c); }
+  .tech-badge{
+    font-size:.72rem; color: var(--brand-dark); background:#e4ece9;
+    padding:3px 9px; border-radius:6px;
+  }
+
+  .empty{
+    text-align:center; padding: 60px 20px; color: var(--ink-faint);
+  }
+  .empty .glyph{ font-family:"Fraunces", serif; font-size:2.4rem; font-style:italic; color: var(--ink-faint); margin-bottom:10px; }
+
+  footer{
+    max-width: 1080px; margin: 40px auto 0; padding: 24px 20px 0;
+    border-top: 1px solid var(--line);
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;
+    color: var(--ink-faint); font-size:.82rem;
+  }
+  footer a.dl{
+    color: var(--brand-dark); border:1px solid var(--line); background:var(--paper-raised);
+    padding:8px 14px; border-radius:8px; text-decoration:none; font-size:.82rem;
+  }
+  footer a.dl:hover{ border-color: var(--brand-dark); }
+
+  @media (max-width: 760px){
+    header.hero{ padding: 40px 20px 20px; }
+    .card{ grid-template-columns: 1fr; gap: 10px; }
+    .card .meta-col{ flex-direction:row; align-items:center; justify-content:flex-start; }
+    .stats{ gap:18px; }
+  }
+
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="kicker">Interview Vocabulary Index</div>
+  <h1>面试常用单词，<em>随手一查</em>。</h1>
+  <p class="lede">收录 Java / Python / FastAPI / LangChain / RAG / Transformer / OpenCV / AI 编程工具等技术面试高频词条，含音标、谐音速记与一句话回答。点击喇叭图标可听发音。</p>
+  <div class="stats" id="stats">
+    <div class="stat"><b id="statTotal">—</b><span>词条总数</span></div>
+    <div class="stat"><b id="statTech">—</b><span>技术栈</span></div>
+    <div class="stat"><b id="statMust">—</b><span>必问词条</span></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="panel">
+    <div class="search-row">
+      <input id="searchInput" type="text" placeholder="搜索单词、解释、中文谐音或一句话回答……" autocomplete="off" />
+    </div>
+    <div class="chip-groups">
+      <div class="chip-group">
+        <div class="label">重要程度</div>
+        <div class="chips" id="levelChips"></div>
+      </div>
+      <div class="chip-group">
+        <div class="label">技术栈</div>
+        <div class="chips" id="techChips"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="result-bar">
+    <span>共 <strong id="resultCount">0</strong> 条匹配</span>
+    <button type="button" class="reset-link" id="resetBtn">清除筛选</button>
+  </div>
+
+  <div class="list" id="list"></div>
+  <div class="empty" id="emptyState" style="display:none">
+    <div class="glyph">∅</div>
+    <div>没有找到匹配的词条，换个关键词试试。</div>
+  </div>
+</div>
+
+<footer>
+  <span>数据来源：面试常用单词整理表 · 共 676 条</span>
+  <a class="dl" href="./interview-vocab.xlsx" download>下载完整 Excel 表格</a>
+</footer>
+
+<script>
+(function(){
+  var state = { q: "", level: null, tech: null };
+  var DATA = null;
+
+  function escapeHtml(s){
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
+      return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c];
+    });
+  }
+
+  function highlight(text, q){
+    var safe = escapeHtml(text);
+    if(!q) return safe;
+    try{
+      var re = new RegExp("(" + q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")", "ig");
+      return safe.replace(re, "<mark>$1</mark>");
+    }catch(e){ return safe; }
+  }
+
+  function rowToObj(r){
+    return {
+      cat: r[0], word: r[1], explain: r[2], homo: r[3],
+      ipa: r[4], pron: r[5], tech: r[6], level: r[7],
+      compare: r[8], oneliner: r[9]
+    };
+  }
+
+  function speak(word){
+    if(!('speechSynthesis' in window)) return;
+    try{
+      window.speechSynthesis.cancel();
+      var u = new SpeechSynthesisUtterance(word);
+      u.lang = "en-US";
+      u.rate = 0.92;
+      window.speechSynthesis.speak(u);
+    }catch(e){}
+  }
+
+  function levelRank(l){ return l === "必问" ? 0 : l === "常问" ? 1 : 2; }
+
+  function render(){
+    var q = state.q.trim().toLowerCase();
+    var filtered = DATA.filter(function(d){
+      if(state.level && d.level !== state.level) return false;
+      if(state.tech && d.tech !== state.tech) return false;
+      if(q){
+        var hay = (d.word + " " + d.explain + " " + d.homo + " " + d.oneliner + " " + d.compare).toLowerCase();
+        if(hay.indexOf(q) === -1) return false;
+      }
+      return true;
+    });
+
+    document.getElementById("resultCount").textContent = filtered.length;
+    var list = document.getElementById("list");
+    var empty = document.getElementById("emptyState");
+
+    if(filtered.length === 0){
+      list.innerHTML = "";
+      empty.style.display = "block";
+      return;
+    }
+    empty.style.display = "none";
+
+    var qRaw = state.q.trim();
+    var html = filtered.map(function(d, i){
+      return (
+        '<div class="card" data-idx="' + i + '">' +
+          '<div class="word-col">' +
+            '<div class="word-line">' +
+              '<span class="word">' + highlight(d.word, qRaw) + '</span>' +
+              '<button class="speak-btn" data-word="' + escapeHtml(d.word) + '" title="朗读发音" aria-label="朗读 ' + escapeHtml(d.word) + '">' +
+                '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.24 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>' +
+              '</button>' +
+            '</div>' +
+            '<div class="phonetic">' + escapeHtml(d.ipa) + '<span class="homo">' + escapeHtml(d.homo) + '</span></div>' +
+            '<div class="cat-tag">' + escapeHtml(d.cat) + '</div>' +
+          '</div>' +
+          '<div class="body-col">' +
+            '<div class="explain">' + highlight(d.explain, qRaw) + '</div>' +
+            (d.oneliner ? '<div class="oneliner">' + highlight(d.oneliner, qRaw) + '</div>' : '') +
+            (d.compare && d.compare !== '—' ? '<div class="compare"><b>对比：</b>' + escapeHtml(d.compare) + '</div>' : '') +
+          '</div>' +
+          '<div class="meta-col">' +
+            '<span class="level-badge ' + escapeHtml(d.level) + '">' + escapeHtml(d.level) + '</span>' +
+            '<span class="tech-badge">' + escapeHtml(d.tech) + '</span>' +
+          '</div>' +
+        '</div>'
+      );
+    }).join("");
+    list.innerHTML = html;
+
+    Array.prototype.forEach.call(list.querySelectorAll(".speak-btn"), function(btn){
+      btn.addEventListener("click", function(e){
+        e.stopPropagation();
+        speak(btn.getAttribute("data-word"));
+      });
+    });
+  }
+
+  function buildChips(containerId, items, kind){
+    var container = document.getElementById(containerId);
+    var html = items.map(function(it){
+      var extraClass = kind === "level" ? " level-" + it.key : "";
+      return '<div class="chip' + extraClass + '" data-kind="' + kind + '" data-value="' + escapeHtml(it.key) + '">' +
+        escapeHtml(it.key) + '<span class="n">' + it.count + '</span></div>';
+    }).join("");
+    container.innerHTML = html;
+    Array.prototype.forEach.call(container.querySelectorAll(".chip"), function(chip){
+      chip.addEventListener("click", function(){
+        var val = chip.getAttribute("data-value");
+        var k = kind === "level" ? "level" : "tech";
+        state[k] = (state[k] === val) ? null : val;
+        Array.prototype.forEach.call(container.querySelectorAll(".chip"), function(c){
+          c.classList.toggle("active", c.getAttribute("data-value") === state[k]);
+        });
+        render();
+      });
+    });
+  }
+
+  function count(arr, key){
+    var m = {};
+    arr.forEach(function(d){ m[d[key]] = (m[d[key]] || 0) + 1; });
+    return Object.keys(m).map(function(k){ return { key: k, count: m[k] }; });
+  }
+
+  fetch("./vocab-data.json").then(function(r){ return r.json(); }).then(function(json){
+    DATA = json.rows.map(rowToObj);
+
+    document.getElementById("statTotal").textContent = DATA.length;
+    document.getElementById("statTech").textContent = count(DATA, "tech").length;
+    document.getElementById("statMust").textContent = DATA.filter(function(d){ return d.level === "必问"; }).length;
+
+    var levels = count(DATA, "level").sort(function(a,b){ return levelRank(a.key) - levelRank(b.key); });
+    var techs = count(DATA, "tech").sort(function(a,b){ return b.count - a.count; });
+
+    buildChips("levelChips", levels, "level");
+    buildChips("techChips", techs, "tech");
+
+    render();
+  }).catch(function(err){
+    document.getElementById("list").innerHTML = '<div class="empty">数据加载失败，请刷新重试。</div>';
+    console.error(err);
+  });
+
+  document.getElementById("searchInput").addEventListener("input", function(e){
+    state.q = e.target.value;
+    render();
+  });
+
+  document.getElementById("resetBtn").addEventListener("click", function(){
+    state = { q: "", level: null, tech: null };
+    document.getElementById("searchInput").value = "";
+    Array.prototype.forEach.call(document.querySelectorAll(".chip"), function(c){ c.classList.remove("active"); });
+    render();
+  });
+})();
+
+</script>
+</body>
+</html>
