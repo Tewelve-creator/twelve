@@ -1,6 +1,24 @@
 {
-  "updatedAt": "2026-08-16T10:53:05.006Z",
+  "updatedAt": "2026-08-16T10:54:56.271Z",
   "words": [
+    {
+      "id": "gh_7",
+      "word": "pink",
+      "cat": "社区投稿",
+      "explain": "pink：技术面试常见术语，建议结合项目场景理解。",
+      "homo": "普-伊-恩-克",
+      "ipa": "",
+      "pron": "pink",
+      "tech": "通用",
+      "level": "了解",
+      "compare": "—",
+      "oneliner": "一句话：pink：技术面试常见术语，建议结合项目场景理解。",
+      "trouble": [],
+      "issueNumber": 7,
+      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/7",
+      "createdAt": "2026-08-16T10:54:44Z",
+      "source": "community"
+    },
     {
       "id": "gh_6",
       "word": "apple",
