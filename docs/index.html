@@ -308,7 +308,7 @@
 <header class="hero">
   <div class="kicker">Interview Vocabulary Index</div>
   <h1>面试常用单词，<em>随手一查</em>。</h1>
-  <p class="lede">输入难词即可 AI 自动补全表头字段并录入（无需 Token）；会邮件通知维护者。点击喇叭可听发音。<span id="syncHint"></span></p>
+  <p class="lede">输入难词即可 AI 自动补全并录入；无需填写 Token，其他人刷新即可同步看到。点击喇叭可听发音。<span id="syncHint"></span></p>
   <div class="quick-add">
     <input id="quickWord" type="text" maxlength="80" placeholder="输入难词，例如：idempotent" autocomplete="off" />
     <button type="button" class="btn btn-primary" id="quickAiBtn">AI 查找并录入</button>
@@ -652,15 +652,62 @@
     document.getElementById("syncHint").textContent = "社区 " + COMMUNITY.length + " 条已同步。";
   }
 
+  function getSubmitToken(){
+    return (window.TWELVE_SUBMIT && window.TWELVE_SUBMIT.githubToken) || "";
+  }
+
   async function submitCommunity(entry){
     var title = "[词条投稿] " + entry.word;
-    if(!FORM_EMAIL) return { ok: true, localOnly: true };
-    await fetch("https://formsubmit.co/ajax/" + encodeURIComponent(FORM_EMAIL), {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify({ _subject: title, ...entry, _template: "table", _captcha: "false" })
-    });
-    return { ok: true, emailed: true };
+    var body = [
+      "## 投稿词条",
+      "",
+      "- **分类**: " + (entry.cat || "社区投稿"),
+      "- **单词**: " + entry.word,
+      "- **用法/解释**: " + (entry.explain || "—"),
+      "- **中文谐音**: " + (entry.homo || "—"),
+      "- **音标**: " + (entry.ipa || "—"),
+      "- **发音**: " + (entry.pron || "—"),
+      "- **技术栈**: " + (entry.tech || "—"),
+      "- **重要程度**: " + (entry.level || "—"),
+      "- **对比词**: " + (entry.compare || "—"),
+      "- **一句话回答**: " + (entry.oneliner || "—"),
+      "",
+      "> 来自站点 AI 录入 · " + (entry.createdAt || new Date().toISOString())
+    ].join("\n");
+    var token = getSubmitToken();
+
+    if(token){
+      var res = await fetch("https://api.github.com/repos/" + ISSUE_REPO + "/issues", {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + token,
+          Accept: "application/vnd.github+json",
+          "Content-Type": "application/json",
+          "X-GitHub-Api-Version": "2022-11-28"
+        },
+        body: JSON.stringify({ title: title, body: body, labels: ["word-submission"] })
+      });
+      var data = await res.json().catch(function(){ return {}; });
+      if(!res.ok) throw new Error(data.message || ("GitHub " + res.status));
+      if(FORM_EMAIL){
+        fetch("https://formsubmit.co/ajax/" + encodeURIComponent(FORM_EMAIL), {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify({ _subject: title, ...entry, issue: data.number, _template: "table", _captcha: "false" })
+        }).catch(function(){});
+      }
+      return { ok: true, issueNumber: data.number, issueUrl: data.html_url };
+    }
+
+    if(FORM_EMAIL){
+      await fetch("https://formsubmit.co/ajax/" + encodeURIComponent(FORM_EMAIL), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ _subject: title, ...entry, _template: "table", _captcha: "false" })
+      });
+      return { ok: true, emailed: true };
+    }
+    return { ok: true, localOnly: true };
   }
 
   async function aiLookupAndInsert(){
@@ -690,16 +737,21 @@
         oneliner: result.oneliner,
         createdAt: new Date().toISOString()
       };
-      setQuickMsg("补全完成，正在录入…", false);
+      setQuickMsg("补全完成，正在同步…", false);
       var sub = await submitCommunity(entry);
-      COMMUNITY.unshift(Object.assign({ id: "u_" + Date.now() }, entry, { source: "community" }));
+      COMMUNITY.unshift(Object.assign({
+        id: sub.issueNumber ? ("gh_" + sub.issueNumber) : ("u_" + Date.now()),
+        issueUrl: sub.issueUrl || null
+      }, entry, { source: "community" }));
       rebuildData();
       refreshChips();
       state.q = word;
       document.getElementById("searchInput").value = word;
       render();
-      if(sub.emailed){
-        setQuickMsg("「" + word + "」已录入，并已邮件通知维护者。", false);
+      if(sub.issueNumber){
+        setQuickMsg("「" + word + "」已同步。其他人刷新即可看到，随后会写入 Excel。", false);
+      } else if(sub.emailed){
+        setQuickMsg("「" + word + "」已录入并邮件通知。维护者配置 SUBMIT_PAT 后可自动多人同步。", false);
       } else {
         setQuickMsg("「" + word + "」已录入到本页。", false);
       }

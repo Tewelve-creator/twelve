@@ -26,6 +26,27 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Inject site submit token
+        env:
+          SUBMIT_PAT: ${{ secrets.SUBMIT_PAT }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          token = os.environ.get("SUBMIT_PAT") or ""
+          Path("docs/submit-config.js").write_text(
+              "// auto-injected at deploy; visitors do not paste a token\n"
+              "window.TWELVE_SUBMIT = {\n"
+              '  issueRepo: "Tewelve-creator/twelve",\n'
+              '  formEmail: "3437903275@qq.com",\n'
+              f"  githubToken: {json.dumps(token)}\n"
+              "};\n",
+              encoding="utf-8",
+          )
+          print("token_injected=", bool(token))
+          PY
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
