@@ -308,7 +308,7 @@
 <header class="hero">
   <div class="kicker">Interview Vocabulary Index</div>
   <h1>面试常用单词，<em>随手一查</em>。</h1>
-  <p class="lede">输入难词，AI 自动补全「分类 / 用法 / 谐音 / 音标 / 发音 / 技术栈 / 重要程度 / 对比词 / 一句话回答」，并同步给所有人。点击喇叭可听发音。<span id="syncHint"></span></p>
+  <p class="lede">输入难词即可 AI 自动补全表头字段并录入（无需 Token）；会邮件通知维护者。点击喇叭可听发音。<span id="syncHint"></span></p>
   <div class="quick-add">
     <input id="quickWord" type="text" maxlength="80" placeholder="输入难词，例如：idempotent" autocomplete="off" />
     <button type="button" class="btn btn-primary" id="quickAiBtn">AI 查找并录入</button>
@@ -335,9 +335,6 @@
       <span id="qSource">等待录入</span>
       <span id="qCat">分类：—</span>
     </div>
-  </div>
-  <div class="hero-actions">
-    <button type="button" class="btn" id="manageBtn">管理 / 同步 Token</button>
   </div>
   <div class="stats" id="stats">
     <div class="stat"><b id="statTotal">—</b><span>词条总数</span></div>
@@ -387,26 +384,11 @@
   <a class="dl" href="./interview-vocab.xlsx" download>下载完整 Excel 表格</a>
 </footer>
 
-<div class="modal-backdrop" id="manageModal">
-  <div class="modal">
-    <h2>管理 / 同步 Token</h2>
-    <p class="hint">粘贴 GitHub Fine-grained Token（仅本仓库 Issues: Read and write）。保存后，你添加的词会写入社区 Issue，并自动合并进 Excel，所有人都能看到。</p>
-    <input id="tokenInput" type="password" placeholder="github_pat_..." autocomplete="off" />
-    <div class="quick-msg" id="tokenMsg"></div>
-    <div class="modal-actions">
-      <button type="button" class="btn" id="saveTokenBtn">保存 Token</button>
-      <button type="button" class="btn" id="refreshCommunityBtn">立即同步</button>
-      <button type="button" class="btn btn-ghost" id="closeManageBtn">关闭</button>
-    </div>
-  </div>
-</div>
-
 <script src="./submit-config.js"></script>
 <script>
 (function(){
   var ISSUE_REPO = (window.TWELVE_SUBMIT && window.TWELVE_SUBMIT.issueRepo) || "Tewelve-creator/twelve";
   var FORM_EMAIL = (window.TWELVE_SUBMIT && window.TWELVE_SUBMIT.formEmail) || "";
-  var TOKEN_KEY = "twelve_github_token";
   var state = { q: "", level: null, tech: null, source: null };
   var BASE = [];
   var COMMUNITY = [];
@@ -435,10 +417,6 @@
       compare: r[8], oneliner: r[9],
       source: "official", id: null
     };
-  }
-
-  function getToken(){
-    try{ return localStorage.getItem(TOKEN_KEY) || ""; }catch(e){ return ""; }
   }
 
   function communityToCard(c){
@@ -675,52 +653,14 @@
   }
 
   async function submitCommunity(entry){
-    var token = getToken();
     var title = "[词条投稿] " + entry.word;
-    var body = [
-      "## 投稿词条",
-      "",
-      "- **分类**: " + (entry.cat || "社区投稿"),
-      "- **单词**: " + entry.word,
-      "- **用法/解释**: " + (entry.explain || "—"),
-      "- **中文谐音**: " + (entry.homo || "—"),
-      "- **音标**: " + (entry.ipa || "—"),
-      "- **发音**: " + (entry.pron || "—"),
-      "- **技术栈**: " + (entry.tech || "—"),
-      "- **重要程度**: " + (entry.level || "—"),
-      "- **对比词**: " + (entry.compare || "—"),
-      "- **一句话回答**: " + (entry.oneliner || "—"),
-      "",
-      "> 来自站点 AI 录入 · " + (entry.createdAt || new Date().toISOString())
-    ].join("\n");
-
-    if(token){
-      var res = await fetch("https://api.github.com/repos/" + ISSUE_REPO + "/issues", {
-        method: "POST",
-        headers: {
-          Authorization: "Bearer " + token,
-          Accept: "application/vnd.github+json",
-          "Content-Type": "application/json",
-          "X-GitHub-Api-Version": "2022-11-28"
-        },
-        body: JSON.stringify({ title: title, body: body, labels: ["word-submission"] })
-      });
-      var data = await res.json().catch(function(){ return {}; });
-      if(!res.ok) throw new Error(data.message || ("GitHub " + res.status));
-      return { ok: true, issueNumber: data.number, issueUrl: data.html_url };
-    }
-
-    if(FORM_EMAIL){
-      await fetch("https://formsubmit.co/ajax/" + encodeURIComponent(FORM_EMAIL), {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ _subject: title, ...entry, _template: "table", _captcha: "false" })
-      });
-      return { ok: true, emailed: true };
-    }
-    var err = new Error("请先在「管理 / 同步 Token」中保存 GitHub Token");
-    err.code = "NO_TOKEN";
-    throw err;
+    if(!FORM_EMAIL) return { ok: true, localOnly: true };
+    await fetch("https://formsubmit.co/ajax/" + encodeURIComponent(FORM_EMAIL), {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ _subject: title, ...entry, _template: "table", _captcha: "false" })
+    });
+    return { ok: true, emailed: true };
   }
 
   async function aiLookupAndInsert(){
@@ -750,18 +690,18 @@
         oneliner: result.oneliner,
         createdAt: new Date().toISOString()
       };
-      setQuickMsg("补全完成，正在同步到社区 / Excel…", false);
+      setQuickMsg("补全完成，正在录入…", false);
       var sub = await submitCommunity(entry);
-      COMMUNITY.unshift(Object.assign({ id: sub.issueNumber ? ("gh_" + sub.issueNumber) : ("u_" + Date.now()) }, entry, { source: "community" }));
+      COMMUNITY.unshift(Object.assign({ id: "u_" + Date.now() }, entry, { source: "community" }));
       rebuildData();
       refreshChips();
       state.q = word;
       document.getElementById("searchInput").value = word;
       render();
-      if(sub.issueNumber){
-        setQuickMsg("「" + word + "」已录入。Issue #" + sub.issueNumber + " 将自动写入 Excel，其他人刷新可见。", false);
-      } else if(sub.emailed){
-        setQuickMsg("「" + word + "」已邮件通知。要自动写入 Excel 并多人可见，请配置 GitHub Token。", false);
+      if(sub.emailed){
+        setQuickMsg("「" + word + "」已录入，并已邮件通知维护者。", false);
+      } else {
+        setQuickMsg("「" + word + "」已录入到本页。", false);
       }
       setTimeout(function(){ refreshCommunity(); }, 2500);
       document.getElementById("list").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -905,41 +845,6 @@
     if(e.key === "Enter"){ e.preventDefault(); aiLookupAndInsert(); }
   });
 
-  function openManage(){
-    document.getElementById("tokenInput").value = getToken();
-    document.getElementById("tokenMsg").textContent = "";
-    document.getElementById("manageModal").classList.add("open");
-  }
-  document.getElementById("manageBtn").addEventListener("click", openManage);
-  document.getElementById("closeManageBtn").addEventListener("click", function(){
-    document.getElementById("manageModal").classList.remove("open");
-  });
-  document.getElementById("manageModal").addEventListener("click", function(e){
-    if(e.target === this) this.classList.remove("open");
-  });
-  document.getElementById("saveTokenBtn").addEventListener("click", function(){
-    var v = document.getElementById("tokenInput").value.trim();
-    try{
-      if(v) localStorage.setItem(TOKEN_KEY, v); else localStorage.removeItem(TOKEN_KEY);
-      document.getElementById("tokenMsg").textContent = v ? "已保存，可以多人同步录入了。" : "已清除。";
-      document.getElementById("tokenMsg").classList.remove("error");
-    }catch(e){
-      document.getElementById("tokenMsg").textContent = "保存失败";
-      document.getElementById("tokenMsg").classList.add("error");
-    }
-  });
-  document.getElementById("refreshCommunityBtn").addEventListener("click", function(){
-    refreshCommunity().then(function(){
-      document.getElementById("tokenMsg").textContent = "已同步，社区 " + COMMUNITY.length + " 条。";
-    });
-  });
-  document.addEventListener("keydown", function(e){
-    if(e.key === "Escape") document.getElementById("manageModal").classList.remove("open");
-  });
-
-  try{
-    if(new URLSearchParams(location.search).get("manage") === "1") setTimeout(openManage, 200);
-  }catch(e){}
 
 })();
 
