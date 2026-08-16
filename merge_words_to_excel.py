@@ -164,7 +164,7 @@ def export_vocab_json(xlsx_path: Path) -> int:
 def main() -> None:
     community = load_community_words()
     print("community words:", len(community))
-    candidates = [p for p in (DESKTOP_XLSX, REPO_XLSX) if p.exists()]
+    candidates = [p for p in (REPO_XLSX, DESKTOP_XLSX) if p.exists()]
     if not candidates:
         raise SystemExit("No Excel file found")
 
