@@ -1,6 +1,24 @@
 {
-  "updatedAt": "2026-08-16T10:54:56.271Z",
+  "updatedAt": "2026-08-16T10:55:22.218Z",
   "words": [
+    {
+      "id": "gh_8",
+      "word": "pink",
+      "cat": "社区投稿",
+      "explain": "常见的小鱼， Phoxinus phoxinus。",
+      "homo": "普-伊-恩-克",
+      "ipa": "/pɪŋk/",
+      "pron": "pink",
+      "tech": "通用",
+      "level": "了解",
+      "compare": "—",
+      "oneliner": "一句话：常见的小鱼， Phoxinus phoxinus。",
+      "trouble": [],
+      "issueNumber": 8,
+      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/8",
+      "createdAt": "2026-08-16T10:55:13Z",
+      "source": "community"
+    },
     {
       "id": "gh_7",
       "word": "pink",
