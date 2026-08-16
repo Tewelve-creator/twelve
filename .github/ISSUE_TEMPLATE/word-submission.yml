@@ -1,0 +1,44 @@
+name: 词条投稿
+description: 用户添加的面试单词
+title: "[词条投稿] "
+labels: ["word-submission"]
+body:
+  - type: input
+    id: word
+    attributes:
+      label: 单词
+    validations:
+      required: true
+  - type: textarea
+    id: explain
+    attributes:
+      label: 用法/解释
+  - type: input
+    id: homo
+    attributes:
+      label: 中文谐音
+  - type: input
+    id: ipa
+    attributes:
+      label: 音标
+  - type: input
+    id: pron
+    attributes:
+      label: 发音
+  - type: input
+    id: tech
+    attributes:
+      label: 技术栈
+  - type: dropdown
+    id: level
+    attributes:
+      label: 重要程度
+      options: [了解, 常问, 必问]
+  - type: input
+    id: compare
+    attributes:
+      label: 对比词
+  - type: textarea
+    id: oneliner
+    attributes:
+      label: 一句话回答

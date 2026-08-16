@@ -252,11 +252,53 @@
   }
   footer a.dl:hover{ border-color: var(--brand-dark); }
 
+  .quick-add{ display:flex; gap:10px; flex-wrap:wrap; max-width:680px; margin:0 0 12px; }
+  .quick-add input{
+    flex:1; min-width:200px; font:inherit; font-size:1.02rem;
+    padding:13px 16px; border-radius:12px; border:1px solid var(--line); background:#fff; color:var(--ink);
+  }
+  .quick-add input:focus{ outline:2px solid var(--brand); outline-offset:1px; }
+  .btn{
+    font:inherit; font-size:.88rem; cursor:pointer; border-radius:10px; padding:10px 16px;
+    border:1px solid var(--line); background:#fff; color:var(--ink);
+  }
+  .btn-primary{ background:var(--brand-dark); border-color:var(--brand-dark); color:#f1ead9; }
+  .btn-primary:disabled{ opacity:.6; cursor:wait; }
+  .btn-ghost{ background:transparent; }
+  .quick-msg{ min-height:1.3em; margin:0 0 12px; font-size:.88rem; color:var(--brand-dark); max-width:680px; }
+  .quick-msg.error{ color:var(--tag-a); }
+  .ai-sheet{
+    display:none; max-width:760px; margin:0 0 18px; border:1px solid #1e3a5f; border-radius:10px; overflow:hidden; background:#fff;
+  }
+  .ai-sheet.show{ display:block; }
+  .ai-sheet-head{
+    background:#1e3a5f; color:#fff; padding:10px 12px;
+    display:grid; grid-template-columns:1.3fr 1fr 1fr 1.1fr; gap:8px; font-size:.72rem; line-height:1.35;
+  }
+  .ai-sheet-head b{ display:block; }
+  .ai-sheet-head span{ display:block; opacity:.88; margin-top:2px; }
+  .ai-sheet-body{
+    display:grid; grid-template-columns:1.3fr 1fr 1fr 1.1fr; gap:8px; padding:12px; font-size:.82rem; line-height:1.45;
+  }
+  .ai-sheet-body .k{ font-family:"IBM Plex Mono",monospace; font-size:.65rem; color:var(--ink-faint); margin-bottom:2px; }
+  .ai-sheet-meta{ padding:8px 12px; border-top:1px solid var(--line); font-size:.74rem; color:var(--ink-soft); display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap; }
+  .hero-actions{ display:flex; gap:8px; flex-wrap:wrap; margin:0 0 18px; }
+  .user-badge{ font-size:.68rem; padding:3px 8px; border-radius:999px; background:#e4ece9; color:var(--brand-dark); font-weight:600; }
+  .card.user-card{ border-style:dashed; }
+  .modal-backdrop{ position:fixed; inset:0; background:rgba(42,37,29,.42); display:none; align-items:center; justify-content:center; padding:20px; z-index:1000; }
+  .modal-backdrop.open{ display:flex; }
+  .modal{ width:min(480px,100%); background:var(--paper-raised); border:1px solid var(--line); border-radius:16px; padding:20px; }
+  .modal h2{ font-family:"Fraunces",serif; margin:0 0 8px; font-size:1.35rem; }
+  .modal .hint{ color:var(--ink-soft); font-size:.88rem; line-height:1.5; margin:0 0 12px; }
+  .modal input{ width:100%; font:inherit; padding:10px 12px; border-radius:10px; border:1px solid var(--line); margin:0 0 10px; box-sizing:border-box; }
+  .modal-actions{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; margin-top:8px; }
   @media (max-width: 760px){
     header.hero{ padding: 40px 20px 20px; }
     .card{ grid-template-columns: 1fr; gap: 10px; }
     .card .meta-col{ flex-direction:row; align-items:center; justify-content:flex-start; }
     .stats{ gap:18px; }
+    .ai-sheet-head, .ai-sheet-body{ grid-template-columns:1fr 1fr; }
+    .quick-add{ flex-direction:column; }
   }
 
 </style>
@@ -266,11 +308,42 @@
 <header class="hero">
   <div class="kicker">Interview Vocabulary Index</div>
   <h1>面试常用单词，<em>随手一查</em>。</h1>
-  <p class="lede">精选技术面试高频词：Java / Python / FastAPI / LangChain / RAG / Transformer 等八股与 API，含音标、谐音速记与一句话回答。已去掉生僻少用词，点击喇叭可听发音。</p>
+  <p class="lede">输入难词，AI 自动补全「分类 / 用法 / 谐音 / 音标 / 发音 / 技术栈 / 重要程度 / 对比词 / 一句话回答」，并同步给所有人。点击喇叭可听发音。<span id="syncHint"></span></p>
+  <div class="quick-add">
+    <input id="quickWord" type="text" maxlength="80" placeholder="输入难词，例如：idempotent" autocomplete="off" />
+    <button type="button" class="btn btn-primary" id="quickAiBtn">AI 查找并录入</button>
+  </div>
+  <p class="quick-msg" id="quickMsg" aria-live="polite"></p>
+  <div class="ai-sheet" id="quickSheet">
+    <div class="ai-sheet-head">
+      <div><b>用法/解释</b><span>技术栈</span></div>
+      <div><b>中文谐音</b><span>重要程度</span></div>
+      <div><b>音标</b><span>对比词</span></div>
+      <div><b>发音</b><span>一句话回答</span></div>
+    </div>
+    <div class="ai-sheet-body">
+      <div><div class="k">用法/解释</div><div id="qExplain">—</div></div>
+      <div><div class="k">中文谐音</div><div id="qHomo">—</div></div>
+      <div><div class="k">音标</div><div id="qIpa">—</div></div>
+      <div><div class="k">发音</div><div id="qPron">—</div></div>
+      <div><div class="k">技术栈</div><div id="qTech">—</div></div>
+      <div><div class="k">重要程度</div><div id="qLevel">—</div></div>
+      <div><div class="k">对比词</div><div id="qCompare">—</div></div>
+      <div><div class="k">一句话回答</div><div id="qOneliner">—</div></div>
+    </div>
+    <div class="ai-sheet-meta">
+      <span id="qSource">等待录入</span>
+      <span id="qCat">分类：—</span>
+    </div>
+  </div>
+  <div class="hero-actions">
+    <button type="button" class="btn" id="manageBtn">管理 / 同步 Token</button>
+  </div>
   <div class="stats" id="stats">
     <div class="stat"><b id="statTotal">—</b><span>词条总数</span></div>
     <div class="stat"><b id="statTech">—</b><span>技术栈</span></div>
     <div class="stat"><b id="statMust">—</b><span>必问词条</span></div>
+    <div class="stat"><b id="statCommunity">0</b><span>社区新增</span></div>
   </div>
 </header>
 
@@ -288,6 +361,12 @@
         <div class="label">技术栈</div>
         <div class="chips" id="techChips"></div>
       </div>
+      <div class="chip-group">
+        <div class="label">来源</div>
+        <div class="chips" id="sourceChips">
+          <div class="chip" data-value="community">仅看社区<span class="n" id="communityChipN">0</span></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -304,14 +383,35 @@
 </div>
 
 <footer>
-  <span>数据来源：面试常用单词整理表 · 共 317 条</span>
+  <span>数据来源：面试常用单词整理表 · 支持用户添加并同步 Excel</span>
   <a class="dl" href="./interview-vocab.xlsx" download>下载完整 Excel 表格</a>
 </footer>
 
+<div class="modal-backdrop" id="manageModal">
+  <div class="modal">
+    <h2>管理 / 同步 Token</h2>
+    <p class="hint">粘贴 GitHub Fine-grained Token（仅本仓库 Issues: Read and write）。保存后，你添加的词会写入社区 Issue，并自动合并进 Excel，所有人都能看到。</p>
+    <input id="tokenInput" type="password" placeholder="github_pat_..." autocomplete="off" />
+    <div class="quick-msg" id="tokenMsg"></div>
+    <div class="modal-actions">
+      <button type="button" class="btn" id="saveTokenBtn">保存 Token</button>
+      <button type="button" class="btn" id="refreshCommunityBtn">立即同步</button>
+      <button type="button" class="btn btn-ghost" id="closeManageBtn">关闭</button>
+    </div>
+  </div>
+</div>
+
+<script src="./submit-config.js"></script>
 <script>
 (function(){
-  var state = { q: "", level: null, tech: null };
-  var DATA = null;
+  var ISSUE_REPO = (window.TWELVE_SUBMIT && window.TWELVE_SUBMIT.issueRepo) || "Tewelve-creator/twelve";
+  var FORM_EMAIL = (window.TWELVE_SUBMIT && window.TWELVE_SUBMIT.formEmail) || "";
+  var TOKEN_KEY = "twelve_github_token";
+  var state = { q: "", level: null, tech: null, source: null };
+  var BASE = [];
+  var COMMUNITY = [];
+  var DATA = [];
+  var communityTimer = null;
 
   function escapeHtml(s){
     return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
@@ -332,8 +432,46 @@
     return {
       cat: r[0], word: r[1], explain: r[2], homo: r[3],
       ipa: r[4], pron: r[5], tech: r[6], level: r[7],
-      compare: r[8], oneliner: r[9]
+      compare: r[8], oneliner: r[9],
+      source: "official", id: null
     };
+  }
+
+  function getToken(){
+    try{ return localStorage.getItem(TOKEN_KEY) || ""; }catch(e){ return ""; }
+  }
+
+  function communityToCard(c){
+    return {
+      cat: c.cat || ((c.trouble && c.trouble.length) ? ("社区·" + c.trouble.join("/")) : "社区投稿"),
+      word: c.word,
+      explain: c.explain || "（暂无解释）",
+      homo: c.homo || "",
+      ipa: c.ipa || "",
+      pron: c.pron || "",
+      tech: c.tech || "用户投稿",
+      level: c.level || "了解",
+      compare: c.compare || "—",
+      oneliner: c.oneliner || "",
+      source: "community",
+      id: c.id || null
+    };
+  }
+
+  function rebuildData(){
+    var seen = {}, merged = [];
+    function add(card){
+      var key = String(card.word || "").toLowerCase();
+      if(!key || seen[key]) return;
+      seen[key] = true;
+      merged.push(card);
+    }
+    COMMUNITY.map(communityToCard).forEach(add);
+    BASE.forEach(add);
+    DATA = merged;
+    document.getElementById("statCommunity").textContent = COMMUNITY.length;
+    document.getElementById("communityChipN").textContent = COMMUNITY.length;
+    document.getElementById("statTotal").textContent = DATA.length;
   }
 
   function speak(word){
@@ -349,9 +487,297 @@
 
   function levelRank(l){ return l === "必问" ? 0 : l === "常问" ? 1 : 2; }
 
+  function setQuickMsg(text, isError){
+    var el = document.getElementById("quickMsg");
+    el.textContent = text || "";
+    el.classList.toggle("error", !!isError);
+  }
+
+  function renderSheet(r){
+    document.getElementById("quickSheet").classList.add("show");
+    document.getElementById("qExplain").textContent = r.explain || "—";
+    document.getElementById("qHomo").textContent = r.homo || "—";
+    document.getElementById("qIpa").textContent = r.ipa || "—";
+    document.getElementById("qPron").textContent = r.pron || "—";
+    document.getElementById("qTech").textContent = r.tech || "—";
+    document.getElementById("qLevel").textContent = r.level || "—";
+    document.getElementById("qCompare").textContent = r.compare || "—";
+    document.getElementById("qOneliner").textContent = r.oneliner || "—";
+    document.getElementById("qSource").textContent = r._source || "已补全";
+    document.getElementById("qCat").textContent = "分类：" + (r.cat || "—");
+  }
+
+  function guessTech(word, text){
+    var hay = (word + " " + (text || "")).toLowerCase();
+    var rules = [
+      ["langchain","LangChain"],["retriev","RAG"],["embedding","RAG"],["transformer","Transformer"],
+      ["fastapi","FastAPI"],["django","Python"],["flask","Python"],["spring","Java"],["jvm","Java"],
+      ["python","Python"],["java","Java"]
+    ];
+    for(var i=0;i<rules.length;i++){ if(hay.indexOf(rules[i][0]) >= 0) return rules[i][1]; }
+    return "通用";
+  }
+
+  function guessLevel(word){
+    var must = ["hashmap","thread","transaction","cache","gc","spring","rag","embedding","transformer","fastapi"];
+    var often = ["idempotent","immutable","middleware","jwt","redis","docker","kubernetes"];
+    var w = word.toLowerCase();
+    if(must.some(function(x){ return w.indexOf(x) >= 0; })) return "必问";
+    if(often.some(function(x){ return w.indexOf(x) >= 0; })) return "常问";
+    return "了解";
+  }
+
+  function phoneticToHomo(text){
+    if(!text) return "";
+    var s = String(text).toLowerCase().replace(/[\/\[\]]/g, " ").replace(/[ˈˌː.]/g, " ");
+    var map = {
+      "aɪ":"艾","aʊ":"奥","ɔɪ":"欧伊","əʊ":"欧","oʊ":"欧","eɪ":"哎","tʃ":"奇","dʒ":"吉",
+      "θ":"斯","ð":"兹","ʃ":"什","ʒ":"日","ŋ":"恩","æ":"阿","ɑ":"阿","ɒ":"奥","ɔ":"奥",
+      "ə":"呃","ɜ":"俄","ɪ":"伊","i":"伊","ʊ":"乌","u":"乌","e":"诶","ɛ":"诶","ʌ":"阿",
+      "b":"布","p":"普","d":"德","t":"特","g":"格","k":"克","v":"弗","f":"弗","z":"兹","s":"斯",
+      "m":"姆","n":"恩","l":"勒","r":"尔","w":"沃","j":"耶","h":"赫"
+    };
+    var keys = Object.keys(map).sort(function(a,b){ return b.length - a.length; });
+    var out = [], i = 0;
+    while(i < s.length){
+      if(/\s/.test(s[i])){ i++; continue; }
+      var hit = null;
+      for(var k=0;k<keys.length;k++){ if(s.substr(i, keys[k].length) === keys[k]){ hit = keys[k]; break; } }
+      if(hit){ out.push(map[hit]); i += hit.length; } else i++;
+    }
+    return out.join("-");
+  }
+
+  async function fetchDictionary(word){
+    var res = await fetch("https://api.dictionaryapi.dev/api/v2/entries/en/" + encodeURIComponent(word));
+    if(!res.ok) throw new Error("dictionary " + res.status);
+    var data = await res.json();
+    var entry = data[0] || {};
+    var ipa = entry.phonetic || "";
+    (entry.phonetics || []).forEach(function(p){ if(!ipa && p.text) ipa = p.text; });
+    var techRe = /comput|program|software|data|memory|network|server|code|algorithm|database|cache|api|object|class|function|hash|token|model|vector/i;
+    var meanings = [];
+    (entry.meanings || []).forEach(function(m){
+      (m.definitions || []).forEach(function(d){ if(d.definition) meanings.push(d.definition); });
+    });
+    meanings.sort(function(a,b){ return (techRe.test(a)?0:1) - (techRe.test(b)?0:1); });
+    var synonyms = [];
+    (entry.meanings || []).forEach(function(m){
+      (m.synonyms || []).forEach(function(s){ if(synonyms.indexOf(s) < 0) synonyms.push(s); });
+    });
+    return { ipa: ipa, explainEn: meanings[0] || "", compare: synonyms.slice(0,3).join(" / "), pron: word };
+  }
+
+  async function translateZh(text){
+    if(!text) return "";
+    var url = "https://api.mymemory.translated.net/get?q=" + encodeURIComponent(text.slice(0,400)) + "&langpair=en|zh-CN";
+    var res = await fetch(url);
+    if(!res.ok) return "";
+    var data = await res.json();
+    return (data.responseData && data.responseData.translatedText) || "";
+  }
+
+  async function searchWordFields(word){
+    var local = BASE.filter(function(d){ return d.word.toLowerCase() === word.toLowerCase(); })[0];
+    if(local){
+      return {
+        word: local.word, cat: local.cat, explain: local.explain, homo: local.homo, ipa: local.ipa,
+        pron: local.pron || word, tech: local.tech, level: local.level, compare: local.compare,
+        oneliner: local.oneliner, _source: "命中站内词表"
+      };
+    }
+    var result = {
+      word: word, cat: "社区投稿", explain: "", homo: "", ipa: "", pron: word,
+      tech: "通用", level: "了解", compare: "—", oneliner: "", _source: ""
+    };
+    try{
+      var dict = await fetchDictionary(word);
+      result.ipa = dict.ipa || "";
+      result.pron = dict.pron || word;
+      result.compare = dict.compare || "—";
+      result.homo = phoneticToHomo(dict.ipa);
+      if(dict.explainEn){
+        var zh = await translateZh(dict.explainEn);
+        result.explain = zh || dict.explainEn;
+      }
+      result._source = "词典 + 翻译自动补全";
+    }catch(e){
+      result.explain = word + "：技术面试常见术语，建议结合项目场景理解。";
+      result._source = "基础推断";
+    }
+    result.tech = guessTech(word, result.explain);
+    result.level = guessLevel(word);
+    if(!result.homo) result.homo = phoneticToHomo(result.ipa) || phoneticToHomo(word);
+    if(!result.oneliner) result.oneliner = "一句话：" + String(result.explain).slice(0, 72);
+    return result;
+  }
+
+  function pickIssueField(body, key){
+    if(!body) return "";
+    var re = new RegExp("[-*]\\s*\\*\\*" + key + "\\*\\*:\\s*(.+)", "i");
+    var m = String(body).match(re);
+    return m ? m[1].trim().replace(/^—$/, "") : "";
+  }
+
+  function issueToCommunity(issue){
+    var body = issue.body || "";
+    var word = pickIssueField(body, "单词") || String(issue.title || "").replace(/^\[词条投稿\]\s*/i, "").trim();
+    if(!word) return null;
+    var troubleRaw = pickIssueField(body, "卡在哪");
+    return {
+      id: "gh_" + issue.number,
+      word: word,
+      cat: pickIssueField(body, "分类") || "社区投稿",
+      explain: pickIssueField(body, "用法/解释") || "",
+      homo: pickIssueField(body, "中文谐音") || "",
+      ipa: pickIssueField(body, "音标") || "",
+      pron: pickIssueField(body, "发音") || "",
+      tech: pickIssueField(body, "技术栈") || "用户投稿",
+      level: pickIssueField(body, "重要程度") || "了解",
+      compare: pickIssueField(body, "对比词") || "—",
+      oneliner: pickIssueField(body, "一句话回答") || "",
+      trouble: troubleRaw ? troubleRaw.split(/[、,，]/).map(function(s){ return s.trim(); }).filter(Boolean) : [],
+      createdAt: issue.created_at,
+      issueUrl: issue.html_url
+    };
+  }
+
+  async function refreshCommunity(){
+    var fromFile = [], fromIssues = [];
+    try{
+      var r1 = await fetch("./community-words.json?_=" + Date.now());
+      if(r1.ok){
+        var j1 = await r1.json();
+        fromFile = Array.isArray(j1.words) ? j1.words : [];
+      }
+    }catch(e){}
+    try{
+      var r2 = await fetch("https://api.github.com/repos/" + ISSUE_REPO + "/issues?labels=word-submission&state=open&per_page=100", {
+        headers: { Accept: "application/vnd.github+json", "User-Agent": "twelve-site" }
+      });
+      if(r2.ok){
+        var issues = await r2.json();
+        fromIssues = (Array.isArray(issues) ? issues : []).map(issueToCommunity).filter(Boolean);
+      }
+    }catch(e){}
+    var map = {};
+    fromFile.concat(fromIssues).forEach(function(w){
+      if(!w || !w.word) return;
+      var key = String(w.word).toLowerCase();
+      if(!map[key] || String(w.id || "").indexOf("gh_") === 0) map[key] = w;
+    });
+    COMMUNITY = Object.keys(map).map(function(k){ return map[k]; });
+    COMMUNITY.sort(function(a,b){ return String(b.createdAt||"").localeCompare(String(a.createdAt||"")); });
+    rebuildData();
+    refreshChips();
+    render();
+    document.getElementById("syncHint").textContent = "社区 " + COMMUNITY.length + " 条已同步。";
+  }
+
+  async function submitCommunity(entry){
+    var token = getToken();
+    var title = "[词条投稿] " + entry.word;
+    var body = [
+      "## 投稿词条",
+      "",
+      "- **分类**: " + (entry.cat || "社区投稿"),
+      "- **单词**: " + entry.word,
+      "- **用法/解释**: " + (entry.explain || "—"),
+      "- **中文谐音**: " + (entry.homo || "—"),
+      "- **音标**: " + (entry.ipa || "—"),
+      "- **发音**: " + (entry.pron || "—"),
+      "- **技术栈**: " + (entry.tech || "—"),
+      "- **重要程度**: " + (entry.level || "—"),
+      "- **对比词**: " + (entry.compare || "—"),
+      "- **一句话回答**: " + (entry.oneliner || "—"),
+      "",
+      "> 来自站点 AI 录入 · " + (entry.createdAt || new Date().toISOString())
+    ].join("\n");
+
+    if(token){
+      var res = await fetch("https://api.github.com/repos/" + ISSUE_REPO + "/issues", {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + token,
+          Accept: "application/vnd.github+json",
+          "Content-Type": "application/json",
+          "X-GitHub-Api-Version": "2022-11-28"
+        },
+        body: JSON.stringify({ title: title, body: body, labels: ["word-submission"] })
+      });
+      var data = await res.json().catch(function(){ return {}; });
+      if(!res.ok) throw new Error(data.message || ("GitHub " + res.status));
+      return { ok: true, issueNumber: data.number, issueUrl: data.html_url };
+    }
+
+    if(FORM_EMAIL){
+      await fetch("https://formsubmit.co/ajax/" + encodeURIComponent(FORM_EMAIL), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ _subject: title, ...entry, _template: "table", _captcha: "false" })
+      });
+      return { ok: true, emailed: true };
+    }
+    var err = new Error("请先在「管理 / 同步 Token」中保存 GitHub Token");
+    err.code = "NO_TOKEN";
+    throw err;
+  }
+
+  async function aiLookupAndInsert(){
+    var word = document.getElementById("quickWord").value.trim();
+    if(!word){
+      setQuickMsg("请先输入难词。", true);
+      return;
+    }
+    var btn = document.getElementById("quickAiBtn");
+    btn.disabled = true;
+    btn.textContent = "查找中…";
+    setQuickMsg("AI 正在按表头字段补全…", false);
+    try{
+      var result = await searchWordFields(word);
+      result.word = word;
+      renderSheet(result);
+      var entry = {
+        word: result.word,
+        cat: result.cat || "社区投稿",
+        explain: result.explain,
+        homo: result.homo,
+        ipa: result.ipa,
+        pron: result.pron,
+        tech: result.tech,
+        level: result.level,
+        compare: result.compare,
+        oneliner: result.oneliner,
+        createdAt: new Date().toISOString()
+      };
+      setQuickMsg("补全完成，正在同步到社区 / Excel…", false);
+      var sub = await submitCommunity(entry);
+      COMMUNITY.unshift(Object.assign({ id: sub.issueNumber ? ("gh_" + sub.issueNumber) : ("u_" + Date.now()) }, entry, { source: "community" }));
+      rebuildData();
+      refreshChips();
+      state.q = word;
+      document.getElementById("searchInput").value = word;
+      render();
+      if(sub.issueNumber){
+        setQuickMsg("「" + word + "」已录入。Issue #" + sub.issueNumber + " 将自动写入 Excel，其他人刷新可见。", false);
+      } else if(sub.emailed){
+        setQuickMsg("「" + word + "」已邮件通知。要自动写入 Excel 并多人可见，请配置 GitHub Token。", false);
+      }
+      setTimeout(function(){ refreshCommunity(); }, 2500);
+      document.getElementById("list").scrollIntoView({ behavior: "smooth", block: "start" });
+    }catch(err){
+      console.error(err);
+      setQuickMsg(err.message || "录入失败", true);
+    }finally{
+      btn.disabled = false;
+      btn.textContent = "AI 查找并录入";
+    }
+  }
+
   function render(){
     var q = state.q.trim().toLowerCase();
     var filtered = DATA.filter(function(d){
+      if(state.source === "community" && d.source !== "community") return false;
       if(state.level && d.level !== state.level) return false;
       if(state.tech && d.tech !== state.tech) return false;
       if(q){
@@ -364,24 +790,23 @@
     document.getElementById("resultCount").textContent = filtered.length;
     var list = document.getElementById("list");
     var empty = document.getElementById("emptyState");
-
     if(filtered.length === 0){
       list.innerHTML = "";
       empty.style.display = "block";
       return;
     }
     empty.style.display = "none";
-
     var qRaw = state.q.trim();
-    var html = filtered.map(function(d, i){
+    list.innerHTML = filtered.map(function(d, i){
+      var badge = d.source === "community" ? '<span class="user-badge">社区</span>' : '';
       return (
-        '<div class="card" data-idx="' + i + '">' +
+        '<div class="card' + (d.source === "community" ? ' user-card' : '') + '" data-idx="' + i + '">' +
           '<div class="word-col">' +
             '<div class="word-line">' +
               '<span class="word">' + highlight(d.word, qRaw) + '</span>' +
               '<button class="speak-btn" data-word="' + escapeHtml(d.word) + '" title="朗读发音" aria-label="朗读 ' + escapeHtml(d.word) + '">' +
                 '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.24 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>' +
-              '</button>' +
+              '</button>' + badge +
             '</div>' +
             '<div class="phonetic">' + escapeHtml(d.ipa) + '<span class="homo">' + escapeHtml(d.homo) + '</span></div>' +
             '<div class="cat-tag">' + escapeHtml(d.cat) + '</div>' +
@@ -398,7 +823,6 @@
         '</div>'
       );
     }).join("");
-    list.innerHTML = html;
 
     Array.prototype.forEach.call(list.querySelectorAll(".speak-btn"), function(btn){
       btn.addEventListener("click", function(e){
@@ -412,7 +836,8 @@
     var container = document.getElementById(containerId);
     var html = items.map(function(it){
       var extraClass = kind === "level" ? " level-" + it.key : "";
-      return '<div class="chip' + extraClass + '" data-kind="' + kind + '" data-value="' + escapeHtml(it.key) + '">' +
+      var active = (kind === "level" ? state.level : state.tech) === it.key ? " active" : "";
+      return '<div class="chip' + extraClass + active + '" data-kind="' + kind + '" data-value="' + escapeHtml(it.key) + '">' +
         escapeHtml(it.key) + '<span class="n">' + it.count + '</span></div>';
     }).join("");
     container.innerHTML = html;
@@ -435,20 +860,23 @@
     return Object.keys(m).map(function(k){ return { key: k, count: m[k] }; });
   }
 
-  fetch("./vocab-data.json").then(function(r){ return r.json(); }).then(function(json){
-    DATA = json.rows.map(rowToObj);
-
-    document.getElementById("statTotal").textContent = DATA.length;
-    document.getElementById("statTech").textContent = count(DATA, "tech").length;
-    document.getElementById("statMust").textContent = DATA.filter(function(d){ return d.level === "必问"; }).length;
-
+  function refreshChips(){
+    if(!DATA.length) return;
     var levels = count(DATA, "level").sort(function(a,b){ return levelRank(a.key) - levelRank(b.key); });
     var techs = count(DATA, "tech").sort(function(a,b){ return b.count - a.count; });
-
     buildChips("levelChips", levels, "level");
     buildChips("techChips", techs, "tech");
+    document.getElementById("statTech").textContent = techs.length;
+    document.getElementById("statMust").textContent = DATA.filter(function(d){ return d.level === "必问"; }).length;
+  }
 
+  fetch("./vocab-data.json").then(function(r){ return r.json(); }).then(function(json){
+    BASE = json.rows.map(rowToObj);
+    rebuildData();
+    refreshChips();
     render();
+    refreshCommunity();
+    communityTimer = setInterval(refreshCommunity, 20000);
   }).catch(function(err){
     document.getElementById("list").innerHTML = '<div class="empty">数据加载失败，请刷新重试。</div>';
     console.error(err);
@@ -458,13 +886,61 @@
     state.q = e.target.value;
     render();
   });
-
   document.getElementById("resetBtn").addEventListener("click", function(){
-    state = { q: "", level: null, tech: null };
+    state = { q: "", level: null, tech: null, source: null };
     document.getElementById("searchInput").value = "";
     Array.prototype.forEach.call(document.querySelectorAll(".chip"), function(c){ c.classList.remove("active"); });
     render();
   });
+  document.getElementById("sourceChips").addEventListener("click", function(e){
+    var chip = e.target.closest(".chip");
+    if(!chip) return;
+    var val = chip.getAttribute("data-value");
+    state.source = (state.source === val) ? null : val;
+    chip.classList.toggle("active", state.source === val);
+    render();
+  });
+  document.getElementById("quickAiBtn").addEventListener("click", aiLookupAndInsert);
+  document.getElementById("quickWord").addEventListener("keydown", function(e){
+    if(e.key === "Enter"){ e.preventDefault(); aiLookupAndInsert(); }
+  });
+
+  function openManage(){
+    document.getElementById("tokenInput").value = getToken();
+    document.getElementById("tokenMsg").textContent = "";
+    document.getElementById("manageModal").classList.add("open");
+  }
+  document.getElementById("manageBtn").addEventListener("click", openManage);
+  document.getElementById("closeManageBtn").addEventListener("click", function(){
+    document.getElementById("manageModal").classList.remove("open");
+  });
+  document.getElementById("manageModal").addEventListener("click", function(e){
+    if(e.target === this) this.classList.remove("open");
+  });
+  document.getElementById("saveTokenBtn").addEventListener("click", function(){
+    var v = document.getElementById("tokenInput").value.trim();
+    try{
+      if(v) localStorage.setItem(TOKEN_KEY, v); else localStorage.removeItem(TOKEN_KEY);
+      document.getElementById("tokenMsg").textContent = v ? "已保存，可以多人同步录入了。" : "已清除。";
+      document.getElementById("tokenMsg").classList.remove("error");
+    }catch(e){
+      document.getElementById("tokenMsg").textContent = "保存失败";
+      document.getElementById("tokenMsg").classList.add("error");
+    }
+  });
+  document.getElementById("refreshCommunityBtn").addEventListener("click", function(){
+    refreshCommunity().then(function(){
+      document.getElementById("tokenMsg").textContent = "已同步，社区 " + COMMUNITY.length + " 条。";
+    });
+  });
+  document.addEventListener("keydown", function(e){
+    if(e.key === "Escape") document.getElementById("manageModal").classList.remove("open");
+  });
+
+  try{
+    if(new URLSearchParams(location.search).get("manage") === "1") setTimeout(openManage, 200);
+  }catch(e){}
+
 })();
 
 </script>

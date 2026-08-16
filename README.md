@@ -1,30 +1,36 @@
 # 面试常用单词站
 
-样式对齐 [Netlify 示例站](https://roaring-alpaca-e98168.netlify.app/)：搜索、重要程度/技术栈筛选、音标谐音、一句话回答、朗读发音、Excel 下载。
+搜索、筛选、音标谐音、一句话回答、朗读发音、Excel 下载。
+
+在线地址：https://tewelve-creator.github.io/twelve/
+
+## 用户添加单词（多人可见）
+
+1. 打开网站，点 **管理 / 同步 Token**
+2. 粘贴 GitHub Fine-grained Token（仅本仓库 **Issues: Read and write**）
+3. 首页输入难词 → **AI 查找并录入**
+4. AI 自动补全表头字段（分类、用法/解释、谐音、音标、发音、技术栈、重要程度、对比词、一句话回答）
+5. 写入 GitHub Issue 后，Actions 自动合并进 Excel，并更新 `docs/vocab-data.json`
+6. 所有人刷新页面即可看到；页面也会每 20 秒自动同步社区词条
+
+Token 设置页快捷入口：https://tewelve-creator.github.io/twelve/?manage=1
+
+## 本机合并到 Excel
+
+```bash
+python merge_words_to_excel.py
+```
+
+会更新：
+
+- `e:\Users\i\Desktop\单词\面试常用单词_Java_Python_FastAPI_LangChain.xlsx`（若未被占用）
+- 仓库内 Excel
+- `docs/vocab-data.json`
 
 ## 本地预览
 
 ```bash
-python build_site.py
 python -m http.server 8877 --directory docs
 ```
 
 打开：http://127.0.0.1:8877/
-
-## 发布到 GitHub Pages
-
-1. 把本仓库推到 GitHub（公开仓库）
-2. 仓库 **Settings → Pages → Build and deployment**：
-   - Source 选 **GitHub Actions**  
-   或 Source 选 **Deploy from a branch**，Branch=`master`，Folder=`/docs`
-3. 推送后等待 Actions 成功，访问：
-
-`https://<你的用户名>.github.io/<仓库名>/`
-
-静态文件在 [`docs/`](docs/)：`index.html`、`vocab-data.json`、`interview-vocab.xlsx`。
-
-## 重新从 Excel 生成
-
-```bash
-python build_site.py
-```

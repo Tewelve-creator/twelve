@@ -11,6 +11,7 @@ SITE = ROOT / "site"
 
 # Prefer pruned practical list; backup is the full unpruned source.
 CANDIDATES = [
+    Path(r"e:\Users\i\Desktop\单词\面试常用单词_Java_Python_FastAPI_LangChain.xlsx"),
     ROOT / "面试常用单词_Java_Python_FastAPI_LangChain.xlsx",
     ROOT / "vocab.xlsx",
     ROOT / "面试常用单词_Java_Python_FastAPI_LangChain.backup.xlsx",
