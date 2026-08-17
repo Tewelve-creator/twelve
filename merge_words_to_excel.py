@@ -88,9 +88,10 @@ def word_to_row(w: dict) -> list[str]:
     cat = str(w.get("cat") or "").strip()
     if not cat:
         if isinstance(trouble, list) and trouble:
-            cat = "社区投稿·" + "/".join(str(t) for t in trouble if t)
+            cat = "社区·" + "/".join(str(t) for t in trouble if t)
         else:
-            cat = "社区投稿"
+            cat = "未分类"
+    tech = str(w.get("tech") or "用户投稿").strip() or "用户投稿"
     return [
         cat,
         str(w.get("word") or "").strip(),
@@ -98,7 +99,7 @@ def word_to_row(w: dict) -> list[str]:
         str(w.get("homo") or "").strip(),
         str(w.get("ipa") or "").strip(),
         str(w.get("pron") or "").strip(),
-        str(w.get("tech") or "用户投稿").strip() or "用户投稿",
+        tech,
         str(w.get("level") or "了解").strip() or "了解",
         str(w.get("compare") or w.get("note") or "—").strip() or "—",
         str(w.get("oneliner") or "").strip(),

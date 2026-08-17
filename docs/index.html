@@ -205,16 +205,27 @@
   .speak-btn:active{ transform: scale(.92); }
   .speak-btn.playing{ background: var(--brand-dark); color:#f1ead9; }
   .speak-btn svg{ width:12px; height:12px; }
-  .phonetic{
+  .phonetic-block{ display:flex; flex-direction:column; gap:3px; }
+  .phonetic-ipa{
     font-family:"IBM Plex Mono", monospace;
-    font-size: .78rem;
-    color: var(--ink-soft);
+    font-size: .8rem;
+    color: var(--ink);
   }
-  .phonetic .homo{ color: var(--ink-faint); margin-left:6px; }
+  .phonetic-sound, .phonetic-homo{
+    font-family:"IBM Plex Mono", monospace;
+    font-size: .72rem;
+    color: var(--ink-faint);
+    line-height:1.35;
+  }
+  .phonetic-sound b, .phonetic-homo b{
+    font-weight:600; color: var(--ink-soft); margin-right:4px;
+  }
   .cat-tag{
     font-size:.68rem; color: var(--ink-faint);
     letter-spacing:.04em;
   }
+  .tech-badges{ display:flex; flex-wrap:wrap; gap:4px; justify-content:flex-end; }
+
 
   .card .body-col{ display:flex; flex-direction:column; gap:8px; min-width:0; }
   .explain{ font-size: .94rem; line-height:1.55; color: var(--ink); }
@@ -347,7 +358,7 @@
       <div><b>用法/解释</b></div>
       <div><b>中文谐音</b></div>
       <div><b>音标</b></div>
-      <div><b>发音</b></div>
+      <div><b>音变</b></div>
       <div><b>技术栈</b></div>
       <div><b>重要程度</b></div>
       <div><b>对比词</b></div>
@@ -359,7 +370,7 @@
       <div><div class="k">用法/解释</div><div id="qExplain">—</div></div>
       <div><div class="k">中文谐音</div><div id="qHomo">—</div></div>
       <div><div class="k">音标</div><div id="qIpa">—</div></div>
-      <div><div class="k">发音</div><div id="qPron">—</div></div>
+      <div><div class="k">音变</div><div id="qPron">—</div></div>
       <div><div class="k">技术栈</div><div id="qTech">—</div></div>
       <div><div class="k">重要程度</div><div id="qLevel">—</div></div>
       <div><div class="k">对比词</div><div id="qCompare">—</div></div>
@@ -447,23 +458,27 @@
   }
 
   function rowToObj(r){
+    var tech = r[6];
     return {
       cat: r[0], word: r[1], explain: r[2], homo: r[3],
-      ipa: r[4], pron: r[5], tech: r[6], level: r[7],
+      ipa: r[4], pron: r[5], tech: tech, techs: splitTechs(tech), level: r[7],
       compare: r[8], oneliner: r[9],
       source: "official", id: null
     };
   }
 
   function communityToCard(c){
+    var techs = splitTechs(c.tech || "通用");
+    if(!techs.length) techs = ["通用"];
     return {
-      cat: c.cat || ((c.trouble && c.trouble.length) ? ("社区·" + c.trouble.join("/")) : "社区投稿"),
+      cat: communityCat(c.cat || "未分类", techs),
       word: c.word,
       explain: c.explain || "（暂无解释）",
       homo: c.homo || "",
-      ipa: c.ipa || "",
+      ipa: normalizeIpa(c.ipa) || c.ipa || "",
       pron: c.pron || "",
-      tech: c.tech || "用户投稿",
+      tech: formatTechs(techs),
+      techs: techs,
       level: c.level || "了解",
       compare: c.compare || "—",
       oneliner: c.oneliner || "",
@@ -591,13 +606,13 @@
 
   function renderSheet(r){
     document.getElementById("quickSheet").classList.add("show");
-    document.getElementById("qCat").textContent = r.cat || "—";
+    document.getElementById("qCat").textContent = r._previewCat || r.cat || "—";
     document.getElementById("qWord").textContent = r.word || "—";
     document.getElementById("qExplain").textContent = r.explain || "—";
     document.getElementById("qHomo").textContent = r.homo || "—";
-    document.getElementById("qIpa").textContent = r.ipa || "—";
+    document.getElementById("qIpa").textContent = normalizeIpa(r.ipa) || r.ipa || "—";
     document.getElementById("qPron").textContent = r.pron || "—";
-    document.getElementById("qTech").textContent = r.tech || "—";
+    document.getElementById("qTech").textContent = formatTechs(r.techs || r.tech) || "—";
     document.getElementById("qLevel").textContent = r.level || "—";
     document.getElementById("qCompare").textContent = r.compare || "—";
     document.getElementById("qOneliner").textContent = formatOnelinerDisplay(r.oneliner || "") || "—";
@@ -761,15 +776,57 @@
     return c.split(/[,，;/|]+/).map(function(s){ return s.trim(); }).filter(Boolean).slice(0, 3).join(" / ") || "—";
   }
 
+
+  function normalizeIpa(ipa){
+    var s = String(ipa || "").trim();
+    if(!s || s === "—") return "";
+    // 只保留标准 IPA 字符与斜线、重音
+    s = s.replace(/^[\[\(]+|[\]\)]+$/g, "").trim();
+    s = s.replace(/\s+/g, " ");
+    // 去掉非 IPA 常见杂质
+    if(!/^[\s\/ˈˌː.a-zɑɒæəɜɪʊɔʌθðʃʒŋɡʧʤʔˈˌ\-]+$/i.test(s.replace(/[\/]/g, ""))){
+      // 仍尝试清洗
+      s = s.replace(/[“”"']/g, "");
+    }
+    if(!s.startsWith("/")) s = "/" + s;
+    if(!s.endsWith("/")) s = s + "/";
+    // 压缩重复斜线
+    s = s.replace(/\/+/g, "/");
+    if(s === "//") return "";
+    return s;
+  }
+
+  function pickBestIpa(entry){
+    var texts = [];
+    if(entry.phonetic) texts.push(entry.phonetic);
+    (entry.phonetics || []).forEach(function(p){
+      if(p && p.text) texts.push(p.text);
+    });
+    // 优先带重音符号、美式倾向的
+    texts.sort(function(a,b){
+      var sa = (/[ˈˌ]/.test(a)?2:0) + (/æ|ɑ|ɚ|ɝ/.test(a)?1:0) + a.length/100;
+      var sb = (/[ˈˌ]/.test(b)?2:0) + (/æ|ɑ|ɚ|ɝ/.test(b)?1:0) + b.length/100;
+      return sb - sa;
+    });
+    for(var i=0;i<texts.length;i++){
+      var n = normalizeIpa(texts[i]);
+      if(n) return n;
+    }
+    return "";
+  }
+
   function phoneticToHomo(text){
     if(!text) return "";
-    var s = String(text).toLowerCase().replace(/[\/\[\]]/g, " ").replace(/[ˈˌː.]/g, " ");
+    var s = String(text).toLowerCase()
+      .replace(/[\/\[\]]/g, " ")
+      .replace(/[ˈˌː.]/g, " ")
+      .replace(/tʃ/g, "奇").replace(/dʒ/g, "吉");
     var map = {
-      "aɪ":"艾","aʊ":"奥","ɔɪ":"欧伊","əʊ":"欧","oʊ":"欧","eɪ":"哎","tʃ":"奇","dʒ":"吉",
+      "aɪ":"艾","aʊ":"奥","ɔɪ":"欧伊","əʊ":"欧","oʊ":"欧","eɪ":"哎",
       "θ":"斯","ð":"兹","ʃ":"什","ʒ":"日","ŋ":"恩","æ":"阿","ɑ":"阿","ɒ":"奥","ɔ":"奥",
       "ə":"呃","ɜ":"俄","ɪ":"伊","i":"伊","ʊ":"乌","u":"乌","e":"诶","ɛ":"诶","ʌ":"阿",
-      "b":"布","p":"普","d":"德","t":"特","g":"格","k":"克","v":"弗","f":"弗","z":"兹","s":"斯",
-      "m":"姆","n":"恩","l":"勒","r":"尔","w":"沃","j":"耶","h":"赫"
+      "ɝ":"尔","ɚ":"尔","ɡ":"格","b":"布","p":"普","d":"德","t":"特","g":"格","k":"克",
+      "v":"弗","f":"弗","z":"兹","s":"斯","m":"姆","n":"恩","l":"勒","r":"尔","w":"沃","j":"耶","h":"赫"
     };
     var keys = Object.keys(map).sort(function(a,b){ return b.length - a.length; });
     var out = [], i = 0;
@@ -782,14 +839,53 @@
     return out.join("-");
   }
 
+  function wordToHomoFallback(word){
+    var w = String(word || "").trim();
+    if(!w) return "";
+    // 缩写：逐字母
+    if(/^[A-Z0-9]{2,}$/i.test(w) && w === w.toUpperCase()){
+      var letter = {A:"艾",B:"比",C:"西",D:"迪",E:"伊",F:"艾弗",G:"吉",H:"艾奇",I:"艾",J:"杰",K:"开",L:"艾欧",M:"艾姆",N:"恩",O:"欧",P:"皮",Q:"丘",R:"阿尔",S:"艾斯",T:"提",U:"尤",V:"维",W:"达布刘",X:"艾克斯",Y:"歪",Z:"贼"};
+      return w.split("").map(function(c){ return letter[c.toUpperCase()] || c; }).join("-");
+    }
+    // 常见音节切分谐音
+    var syl = {
+      "tion":"神","sion":"神","ture":"彻","sure":"舒","able":"诶勃","ment":"门特","ing":"英","ed":"德",
+      "str":"斯特","scr":"斯克","sch":"斯克","thr":"斯","pre":"普瑞","pro":"普罗","con":"康","com":"康",
+      "inter":"因特","trans":"转斯","micro":"麦克","multi":"摸提","over":"欧佛","under":"安得"
+    };
+    var low = w.toLowerCase(), parts = [], i = 0;
+    var keys = Object.keys(syl).sort(function(a,b){ return b.length-a.length; });
+    while(i < low.length){
+      var hit = null;
+      for(var k=0;k<keys.length;k++){ if(low.substr(i, keys[k].length) === keys[k]){ hit = keys[k]; break; } }
+      if(hit){ parts.push(syl[hit]); i += hit.length; continue; }
+      // 单字母近似
+      var ch = {
+        a:"阿",b:"布",c:"克",d:"德",e:"伊",f:"弗",g:"格",h:"赫",i:"伊",j:"杰",k:"克",l:"勒",m:"姆",
+        n:"恩",o:"欧",p:"普",q:"库",r:"尔",s:"斯",t:"特",u:"乌",v:"弗",w:"沃",x:"克斯",y:"伊",z:"兹"
+      };
+      parts.push(ch[low[i]] || low[i]);
+      i++;
+    }
+    // 压缩过碎：最多 10 段
+    if(parts.length > 10) parts = parts.slice(0, 10);
+    return parts.join("-");
+  }
+
+  function makeHomo(ipa, word){
+    var h = phoneticToHomo(ipa);
+    if(h && h.split("-").length >= 2) return h;
+    var fb = wordToHomoFallback(word);
+    return h || fb || String(word || "");
+  }
+
   async function fetchDictionary(word){
     var res = await fetch("https://api.dictionaryapi.dev/api/v2/entries/en/" + encodeURIComponent(word));
     if(!res.ok) throw new Error("dictionary " + res.status);
     var data = await res.json();
     var entry = data[0] || {};
-    var ipa = entry.phonetic || "";
-    (entry.phonetics || []).forEach(function(p){ if(!ipa && p.text) ipa = p.text; });
-    var techRe = /comput|program|software|data|memory|network|server|code|algorithm|database|cache|api|object|class|function|hash|token|model|vector/i;
+    var ipa = pickBestIpa(entry);
+    var techRe = /comput|program|software|data|memory|network|server|code|algorithm|database|cache|api|object|class|function|hash|token|model|vector|thread|security|frontend|backend/i;
     var meanings = [];
     (entry.meanings || []).forEach(function(m){
       (m.definitions || []).forEach(function(d){ if(d.definition) meanings.push(d.definition); });
@@ -799,7 +895,7 @@
     (entry.meanings || []).forEach(function(m){
       (m.synonyms || []).forEach(function(s){ if(synonyms.indexOf(s) < 0) synonyms.push(s); });
     });
-    return { ipa: ipa, explainEn: meanings[0] || "", compare: synonyms.slice(0,3).join(" / "), pron: word };
+    return { ipa: ipa, explainEn: meanings[0] || "", compare: synonyms.slice(0,3).join(" / "), pron: ipaToPron(ipa, word) };
   }
 
   async function translateZh(text){
@@ -834,18 +930,75 @@
       .trim();
   }
 
+  function guessTechs(word, text){
+    var hay = (word + " " + (text || "")).toLowerCase();
+    var rules = [
+      ["langchain","AI"],["retriev","AI"],["embedding","AI"],["vector","AI"],["prompt","AI"],["agent","AI"],["llm","AI"],["transformer","AI"],["rag","AI"],
+      ["opencv","AI/视觉"],["cnn","AI/视觉"],["yolo","AI/视觉"],
+      ["cursor","AI工具"],["copilot","AI工具"],
+      ["fastapi","FastAPI"],["uvicorn","FastAPI"],["pydantic","FastAPI"],
+      ["django","Python"],["flask","Python"],["pandas","Python"],["numpy","Python"],["celery","Python"],["gil","Python"],
+      ["spring","Java"],["jvm","Java"],["hibernate","Java"],["mybatis","Java"],["hashmap","Java"],["synchronized","Java"],["volatile","Java"],["thread","Java"],
+      ["react","前端"],["vue","前端"],["angular","前端"],["dom","前端"],["css","前端"],["html","前端"],["jsx","前端"],["javascript","前端"],["typescript","前端"],
+      ["tcp","网络"],["http","网络"],["udp","网络"],["socket","网络"],["websocket","网络"],
+      ["redis","后端"],["mysql","后端"],["postgres","后端"],["mongodb","后端"],["sql","后端"],["kafka","后端"],["docker","后端"],["kubernetes","后端"],
+      ["lock","并发"],["mutex","并发"],["deadlock","并发"],["semaphore","并发"],
+      ["polymorphism","OOP"],["encapsulation","OOP"],["inheritance","OOP"],["abstraction","OOP"],
+      ["jwt","后端/安全"],["oauth","后端/安全"],["csrf","安全"],["xss","安全"],
+      ["process","操作系统"],["scheduler","操作系统"],["kernel","操作系统"]
+    ];
+    var found = [];
+    rules.forEach(function(r){
+      if(hay.indexOf(r[0]) >= 0 && found.indexOf(r[1]) < 0) found.push(r[1]);
+    });
+    var localTech = inferFromLocal(word, "tech");
+    if(localTech){
+      String(localTech).split(/[\/|,，、]/).forEach(function(x){
+        x = x.trim();
+        if(x && found.indexOf(x) < 0) found.push(x);
+      });
+    }
+    if(!found.length) found = ["通用"];
+    return found.slice(0, 4);
+  }
+
+  function formatTechs(techs){
+    if(Array.isArray(techs)) return techs.filter(Boolean).join(" / ") || "通用";
+    return String(techs || "通用");
+  }
+
+  function splitTechs(tech){
+    return String(tech || "").split(/[\/|,，、]/).map(function(s){ return s.trim(); }).filter(Boolean);
+  }
+
+  function techMatches(cardTech, selected){
+    if(!selected) return true;
+    return splitTechs(cardTech).indexOf(selected) >= 0 || String(cardTech) === selected;
+  }
+
+  function communityCat(cat, techs){
+    var base = String(cat || "未分类").trim() || "未分类";
+    var arr = Array.isArray(techs) ? techs : splitTechs(techs);
+    arr = arr.filter(function(t){ return t && t !== "通用" && base.indexOf(t) < 0; });
+    if(!arr.length) return base.indexOf("社区") >= 0 ? base : ("社区·" + base);
+    if(base.indexOf("社区") < 0) base = "社区·" + base;
+    return base + " · " + arr.join(" / ");
+  }
+
   async function searchWordFields(word){
     word = String(word || "").trim();
     var local = BASE.filter(function(d){ return d.word.toLowerCase() === word.toLowerCase(); })[0];
     if(local){
+      var techs0 = splitTechs(local.tech || "通用");
       return {
         word: local.word,
         cat: local.cat || "未分类",
         explain: local.explain,
-        homo: local.homo,
-        ipa: local.ipa,
+        homo: local.homo || makeHomo(local.ipa, local.word),
+        ipa: normalizeIpa(local.ipa) || local.ipa || "—",
         pron: local.pron || ipaToPron(local.ipa, local.word),
-        tech: local.tech || "通用",
+        tech: formatTechs(techs0),
+        techs: techs0,
         level: local.level || "了解",
         compare: normalizeCompare(local.compare),
         oneliner: local.oneliner || makeOneliner(local.word, local.explain),
@@ -859,8 +1012,9 @@
       explain: "",
       homo: "",
       ipa: "",
-      pron: word.toLowerCase(),
+      pron: "",
       tech: "通用",
+      techs: ["通用"],
       level: "了解",
       compare: "—",
       oneliner: "",
@@ -869,28 +1023,32 @@
 
     try{
       var dict = await fetchDictionary(word);
-      result.ipa = dict.ipa || "";
-      result.pron = ipaToPron(dict.ipa, word);
+      result.ipa = normalizeIpa(dict.ipa) || "—";
+      result.pron = dict.pron || ipaToPron(dict.ipa, word);
       result.compare = normalizeCompare(dict.compare);
-      result.homo = phoneticToHomo(dict.ipa);
+      result.homo = makeHomo(dict.ipa, word);
       if(dict.explainEn){
         var zh = await translateZh(dict.explainEn);
         result.explain = normalizeExplain(word, zh || dict.explainEn);
       }
-      result._source = "词典+翻译 · 已按十列表头分配";
+      result._source = "词典+翻译 · 分类/音标/技术栈/重要程度已自动判断";
     }catch(e){
       result.explain = normalizeExplain(word, "");
-      result._source = "基础推断 · 已按十列表头分配";
+      result.ipa = "—";
+      result.pron = ipaToPron("", word);
+      result.homo = makeHomo("", word);
+      result._source = "基础推断 · 已自动判断分类与重要程度";
     }
 
-    if(!result.homo) result.homo = phoneticToHomo(result.ipa) || phoneticToHomo(word) || word;
-    if(!result.ipa) result.ipa = "—";
-    result.tech = guessTech(word, result.explain);
+    result.techs = guessTechs(word, result.explain + " " + result.compare);
+    result.tech = formatTechs(result.techs);
     result.cat = guessCat(word, result.tech, result.explain);
     result.level = guessLevel(word, result.explain, result.tech);
+    result.homo = result.homo || makeHomo(result.ipa, word);
+    result.ipa = normalizeIpa(result.ipa) || result.ipa || "—";
+    result.pron = result.pron || ipaToPron(result.ipa, word);
     result.compare = normalizeCompare(result.compare);
     result.oneliner = makeOneliner(word, result.explain);
-    result.pron = result.pron || ipaToPron(result.ipa, word);
     return result;
   }
 
@@ -1052,15 +1210,18 @@
     try{
       var result = await searchWordFields(word);
       result.word = word;
+      result._previewCat = communityCat(result.cat || "未分类", result.techs || guessTechs(word, result.explain));
       renderSheet(result);
+      var techs = result.techs && result.techs.length ? result.techs : guessTechs(word, result.explain);
       var entry = {
         word: result.word,
-        cat: result.cat || "未分类",
+        cat: communityCat(result.cat || "未分类", techs),
         explain: result.explain,
         homo: result.homo,
-        ipa: result.ipa,
+        ipa: normalizeIpa(result.ipa) || result.ipa || "—",
         pron: result.pron,
-        tech: result.tech,
+        tech: formatTechs(techs),
+        techs: techs,
         level: result.level,
         compare: result.compare,
         oneliner: result.oneliner,
@@ -1129,7 +1290,7 @@
     var filtered = DATA.filter(function(d){
       if(state.source === "community" && d.source !== "community") return false;
       if(state.level && d.level !== state.level) return false;
-      if(state.tech && d.tech !== state.tech) return false;
+      if(state.tech && !techMatches(d.tech, state.tech)) return false;
       if(q){
         var hay = (d.word + " " + d.explain + " " + d.homo + " " + d.oneliner + " " + d.compare).toLowerCase();
         if(hay.indexOf(q) === -1) return false;
@@ -1158,7 +1319,11 @@
                 '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.24 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>' +
               '</button>' + badge +
             '</div>' +
-            '<div class="phonetic">' + escapeHtml(d.ipa) + '<span class="homo">' + escapeHtml(d.homo) + '</span></div>' +
+            '<div class="phonetic-block">' +
+              (d.ipa ? '<div class="phonetic-ipa">' + escapeHtml(normalizeIpa(d.ipa) || d.ipa) + '</div>' : '') +
+              (d.pron ? '<div class="phonetic-sound"><b>音变</b>' + escapeHtml(d.pron) + '</div>' : '') +
+              (d.homo ? '<div class="phonetic-homo"><b>谐音</b>' + escapeHtml(d.homo) + '</div>' : '') +
+            '</div>' +
             '<div class="cat-tag">' + escapeHtml(d.cat) + '</div>' +
           '</div>' +
           '<div class="body-col">' +
@@ -1170,7 +1335,7 @@
           '</div>' +
           '<div class="meta-col">' +
             '<span class="level-badge ' + escapeHtml(d.level) + '">' + escapeHtml(d.level) + '</span>' +
-            '<span class="tech-badge">' + escapeHtml(d.tech) + '</span>' +
+            '<div class="tech-badges">' + splitTechs(d.tech).map(function(x){ return '<span class="tech-badge">' + escapeHtml(x) + '</span>'; }).join("") + '</div>' +
           '</div>' +
         '</div>'
       );
@@ -1209,7 +1374,13 @@
 
   function count(arr, key){
     var m = {};
-    arr.forEach(function(d){ m[d[key]] = (m[d[key]] || 0) + 1; });
+    arr.forEach(function(d){
+      if(key === "tech"){
+        splitTechs(d.tech).forEach(function(t){ m[t] = (m[t] || 0) + 1; });
+      } else {
+        m[d[key]] = (m[d[key]] || 0) + 1;
+      }
+    });
     return Object.keys(m).map(function(k){ return { key: k, count: m[k] }; });
   }
 
