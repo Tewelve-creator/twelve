@@ -1,6 +1,42 @@
 {
-  "updatedAt": "2026-08-17T01:02:41.445Z",
+  "updatedAt": "2026-08-17T01:20:11.907Z",
   "words": [
+    {
+      "id": "gh_14",
+      "word": "add",
+      "cat": "社区投稿",
+      "explain": "添加的行为或实例。",
+      "homo": "阿-德",
+      "ipa": "/æd/",
+      "pron": "add",
+      "tech": "通用",
+      "level": "了解",
+      "compare": "coalesce / join / unite",
+      "oneliner": "一句话：添加的行为或实例。",
+      "trouble": [],
+      "issueNumber": 14,
+      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/14",
+      "createdAt": "2026-08-17T01:20:00Z",
+      "source": "community"
+    },
+    {
+      "id": "gh_13",
+      "word": "is",
+      "cat": "社区投稿",
+      "explain": "is：技术面试常见术语，建议结合项目场景理解。",
+      "homo": "伊-斯",
+      "ipa": "",
+      "pron": "is",
+      "tech": "通用",
+      "level": "了解",
+      "compare": "—",
+      "oneliner": "一句话：is：技术面试常见术语，建议结合项目场景理解。",
+      "trouble": [],
+      "issueNumber": 13,
+      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/13",
+      "createdAt": "2026-08-17T01:02:46Z",
+      "source": "community"
+    },
     {
       "id": "gh_12",
       "word": "is",
