@@ -292,19 +292,19 @@
   }
   .toast-success.show{ opacity:1; transform:translateX(-50%) translateY(0); }
   .ai-sheet{
-    display:none; max-width:760px; margin:0 0 18px; border:1px solid #1e3a5f; border-radius:10px; overflow:hidden; background:#fff;
+    display:none; max-width:960px; margin:0 0 18px; border:1px solid #1e3a5f; border-radius:10px; overflow:hidden; background:#fff;
   }
   .ai-sheet.show{ display:block; }
   .ai-sheet-head{
-    background:#1e3a5f; color:#fff; padding:10px 12px;
-    display:grid; grid-template-columns:1.3fr 1fr 1fr 1.1fr; gap:8px; font-size:.72rem; line-height:1.35;
+    background:#1e3a5f; color:#fff; padding:10px 8px;
+    display:grid; grid-template-columns:repeat(5, 1fr); gap:6px; font-size:.7rem; line-height:1.35; text-align:center;
   }
-  .ai-sheet-head b{ display:block; }
-  .ai-sheet-head span{ display:block; opacity:.88; margin-top:2px; }
+  .ai-sheet-head b{ display:block; font-weight:600; }
   .ai-sheet-body{
-    display:grid; grid-template-columns:1.3fr 1fr 1fr 1.1fr; gap:8px; padding:12px; font-size:.82rem; line-height:1.45;
+    display:grid; grid-template-columns:repeat(5, 1fr); gap:6px; padding:10px 8px; font-size:.8rem; line-height:1.45;
   }
-  .ai-sheet-body .k{ font-family:"IBM Plex Mono",monospace; font-size:.65rem; color:var(--ink-faint); margin-bottom:2px; }
+  .ai-sheet-body .k{ font-family:"IBM Plex Mono",monospace; font-size:.62rem; color:var(--ink-faint); margin-bottom:2px; }
+  .ai-sheet-body > div{ min-width:0; word-break:break-word; }
   .ai-sheet-meta{ padding:8px 12px; border-top:1px solid var(--line); font-size:.74rem; color:var(--ink-soft); display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap; }
   .hero-actions{ display:flex; gap:8px; flex-wrap:wrap; margin:0 0 18px; }
   .user-badge{ font-size:.68rem; padding:3px 8px; border-radius:999px; background:#e4ece9; color:var(--brand-dark); font-weight:600; }
@@ -342,12 +342,20 @@
   <p class="quick-msg" id="quickMsg" aria-live="polite"></p>
   <div class="ai-sheet" id="quickSheet">
     <div class="ai-sheet-head">
-      <div><b>用法/解释</b><span>技术栈</span></div>
-      <div><b>中文谐音</b><span>重要程度</span></div>
-      <div><b>音标</b><span>对比词</span></div>
-      <div><b>发音</b><span>一句话回答</span></div>
+      <div><b>分类</b></div>
+      <div><b>单词</b></div>
+      <div><b>用法/解释</b></div>
+      <div><b>中文谐音</b></div>
+      <div><b>音标</b></div>
+      <div><b>发音</b></div>
+      <div><b>技术栈</b></div>
+      <div><b>重要程度</b></div>
+      <div><b>对比词</b></div>
+      <div><b>一句话回答</b></div>
     </div>
     <div class="ai-sheet-body">
+      <div><div class="k">分类</div><div id="qCat">—</div></div>
+      <div><div class="k">单词</div><div id="qWord">—</div></div>
       <div><div class="k">用法/解释</div><div id="qExplain">—</div></div>
       <div><div class="k">中文谐音</div><div id="qHomo">—</div></div>
       <div><div class="k">音标</div><div id="qIpa">—</div></div>
@@ -359,7 +367,7 @@
     </div>
     <div class="ai-sheet-meta">
       <span id="qSource">等待录入</span>
-      <span id="qCat">分类：—</span>
+      <span>按 Excel 表头十列自动分配</span>
     </div>
   </div>
   <div class="stats" id="stats">
@@ -583,6 +591,8 @@
 
   function renderSheet(r){
     document.getElementById("quickSheet").classList.add("show");
+    document.getElementById("qCat").textContent = r.cat || "—";
+    document.getElementById("qWord").textContent = r.word || "—";
     document.getElementById("qExplain").textContent = r.explain || "—";
     document.getElementById("qHomo").textContent = r.homo || "—";
     document.getElementById("qIpa").textContent = r.ipa || "—";
@@ -590,29 +600,95 @@
     document.getElementById("qTech").textContent = r.tech || "—";
     document.getElementById("qLevel").textContent = r.level || "—";
     document.getElementById("qCompare").textContent = r.compare || "—";
-    document.getElementById("qOneliner").textContent = r.oneliner || "—";
-    document.getElementById("qSource").textContent = r._source || "已补全";
-    document.getElementById("qCat").textContent = "分类：" + (r.cat || "—");
+    document.getElementById("qOneliner").textContent = formatOnelinerDisplay(r.oneliner || "") || "—";
+    document.getElementById("qSource").textContent = r._source || "已按十列表头补全";
   }
 
   function guessTech(word, text){
     var hay = (word + " " + (text || "")).toLowerCase();
     var rules = [
-      ["langchain","LangChain"],["retriev","RAG"],["embedding","RAG"],["transformer","Transformer"],
-      ["fastapi","FastAPI"],["django","Python"],["flask","Python"],["spring","Java"],["jvm","Java"],
-      ["python","Python"],["java","Java"]
+      ["langchain","LangChain"],["retriev","RAG"],["embedding","RAG"],["vector store","RAG"],["transformer","Transformer"],
+      ["fastapi","FastAPI"],["uvicorn","FastAPI"],["pydantic","FastAPI"],
+      ["django","Python"],["flask","Python"],["pandas","Python"],["numpy","Python"],["celery","Python"],
+      ["spring","Java"],["jvm","Java"],["hibernate","Java"],["mybatis","Java"],["servlet","Java"],
+      ["react","前端"],["vue","前端"],["angular","前端"],["dom","前端"],["css","前端"],["html","前端"],["jsx","前端"],["webpack","前端"],
+      ["redis","数据库"],["mysql","数据库"],["postgres","数据库"],["mongodb","数据库"],["sql","数据库"],
+      ["docker","运维"],["kubernetes","运维"],["k8s","运维"],["nginx","运维"],
+      ["python","Python"],["java","Java"],["api","后端"],["middleware","后端"],["jwt","后端"],["auth","后端"]
     ];
     for(var i=0;i<rules.length;i++){ if(hay.indexOf(rules[i][0]) >= 0) return rules[i][1]; }
     return "通用";
   }
 
-  function guessLevel(word){
-    var must = ["hashmap","thread","transaction","cache","gc","spring","rag","embedding","transformer","fastapi"];
-    var often = ["idempotent","immutable","middleware","jwt","redis","docker","kubernetes"];
-    var w = word.toLowerCase();
-    if(must.some(function(x){ return w.indexOf(x) >= 0; })) return "必问";
-    if(often.some(function(x){ return w.indexOf(x) >= 0; })) return "常问";
+  function guessCat(word, tech, explain){
+    var t = String(tech || "");
+    var map = {
+      "前端":"前端基础", "Java":"Java", "Python":"Python", "FastAPI":"FastAPI",
+      "LangChain":"LangChain", "RAG":"RAG", "Transformer":"Transformer",
+      "数据库":"数据库", "运维":"工程实践", "后端":"后端基础", "通用":"未分类"
+    };
+    if(map[t]) return map[t];
+    var w = String(word || "").toLowerCase();
+    if(/react|vue|dom|html|css/.test(w)) return "前端基础";
+    if(/thread|lock|gc|jvm|spring/.test(w)) return "Java";
+    return "未分类";
+  }
+
+  function guessLevel(word, explain){
+    var must = ["hashmap","concurrent","thread","transaction","cache","gc","spring","rag","embedding","transformer","fastapi","idempotent","deadlock","index","redis","kafka"];
+    var often = ["immutable","middleware","jwt","docker","kubernetes","pagination","serialize","async","await","promise","closure","middleware","proxy","queue"];
+    var w = String(word || "").toLowerCase();
+    var hay = (w + " " + (explain || "")).toLowerCase();
+    if(must.some(function(x){ return w === x || w.indexOf(x) >= 0; })) return "必问";
+    if(often.some(function(x){ return w === x || w.indexOf(x) >= 0; })) return "常问";
+    if(/核心|并发|事务|缓存|索引/.test(hay)) return "常问";
     return "了解";
+  }
+
+  function ipaToPron(ipa, word){
+    if(!ipa) return String(word || "").toLowerCase();
+    var s = String(ipa)
+      .replace(/[\/\[\]]/g, "")
+      .replace(/[ˈˌ]/g, "'")
+      .replace(/ː/g, ":")
+      .replace(/ə/g, "uh")
+      .replace(/ɪ/g, "i")
+      .replace(/æ/g, "a")
+      .replace(/ɑ|ɒ/g, "a")
+      .replace(/ɔ/g, "o")
+      .replace(/ʊ/g, "u")
+      .replace(/ʃ/g, "sh")
+      .replace(/ʒ/g, "zh")
+      .replace(/θ/g, "th")
+      .replace(/ð/g, "dh")
+      .replace(/ŋ/g, "ng")
+      .replace(/tʃ/g, "ch")
+      .replace(/dʒ/g, "j")
+      .replace(/\s+/g, " ")
+      .trim();
+    return s || String(word || "").toLowerCase();
+  }
+
+  function normalizeExplain(word, explain){
+    var w = String(word || "").trim();
+    var e = String(explain || "").trim();
+    if(!e || /技术面试常见术语/.test(e)){
+      return w + "：面试中需能解释其含义，并结合项目说明使用场景。";
+    }
+    e = e.replace(/\s+/g, " ").replace(/^[“"]|[”"]$/g, "");
+    // 避免整段过长
+    if(e.length > 80) e = e.slice(0, 78) + "…";
+    // 若翻译结果没带单词，保持「释义」风格
+    if(e.toLowerCase().indexOf(w.toLowerCase()) !== 0 && !/^[（(]/.test(e)){
+      // keep as pure meaning like Excel: "语义化，使用有意义的HTML标签"
+    }
+    return e;
+  }
+
+  function normalizeCompare(compare){
+    var c = String(compare || "").trim();
+    if(!c || c === "—" || /^undefined$/i.test(c)) return "—";
+    return c.split(/[,，;/|]+/).map(function(s){ return s.trim(); }).filter(Boolean).slice(0, 3).join(" / ") || "—";
   }
 
   function phoneticToHomo(text){
@@ -669,57 +745,82 @@
     var w = String(word || "").trim();
     var e = String(explain || "").trim()
       .replace(/^一句话[总结回答]*[：:]\s*/i, "")
+      .replace(/^面试一句话[：:]\s*/i, "")
       .replace(new RegExp("^" + w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\s*[：:]\\s*", "i"), "")
       .trim();
-    if(!e || /技术面试常见术语/.test(e)){
-      return "面试时一句话说明 " + w + " 是什么、用在哪、解决什么问题。";
+    if(!e || /技术面试常见术语|需能解释其含义/.test(e)){
+      return "能说明 " + w + " 的含义，并举例它在项目中的用法。";
     }
     var short = e.split(/[。！？；;\n]/)[0].trim();
-    short = short.replace(/^[指是为]/, "").trim();
-    if(short.length > 42) short = short.slice(0, 42) + "…";
-    return "面试一句话：" + w + " 指" + short + "。";
+    if(short.length > 36) short = short.slice(0, 36) + "…";
+    if(!/[。！？]$/.test(short)) short += "。";
+    return short;
   }
 
   function formatOnelinerDisplay(oneliner){
-    var t = String(oneliner || "").trim()
+    return String(oneliner || "").trim()
       .replace(/^一句话[总结回答]*[：:]\s*/i, "")
       .replace(/^面试一句话[：:]\s*/i, "")
       .trim();
-    return t;
   }
 
   async function searchWordFields(word){
+    word = String(word || "").trim();
     var local = BASE.filter(function(d){ return d.word.toLowerCase() === word.toLowerCase(); })[0];
     if(local){
       return {
-        word: local.word, cat: local.cat, explain: local.explain, homo: local.homo, ipa: local.ipa,
-        pron: local.pron || word, tech: local.tech, level: local.level, compare: local.compare,
-        oneliner: local.oneliner || makeOneliner(local.word, local.explain), _source: "命中站内词表"
+        word: local.word,
+        cat: local.cat || "未分类",
+        explain: local.explain,
+        homo: local.homo,
+        ipa: local.ipa,
+        pron: local.pron || ipaToPron(local.ipa, local.word),
+        tech: local.tech || "通用",
+        level: local.level || "了解",
+        compare: normalizeCompare(local.compare),
+        oneliner: local.oneliner || makeOneliner(local.word, local.explain),
+        _source: "命中站内词表 · 已按十列分配"
       };
     }
+
     var result = {
-      word: word, cat: "社区投稿", explain: "", homo: "", ipa: "", pron: word,
-      tech: "通用", level: "了解", compare: "—", oneliner: "", _source: ""
+      word: word,
+      cat: "未分类",
+      explain: "",
+      homo: "",
+      ipa: "",
+      pron: word.toLowerCase(),
+      tech: "通用",
+      level: "了解",
+      compare: "—",
+      oneliner: "",
+      _source: ""
     };
+
     try{
       var dict = await fetchDictionary(word);
       result.ipa = dict.ipa || "";
-      result.pron = dict.pron || word;
-      result.compare = dict.compare || "—";
+      result.pron = ipaToPron(dict.ipa, word);
+      result.compare = normalizeCompare(dict.compare);
       result.homo = phoneticToHomo(dict.ipa);
       if(dict.explainEn){
         var zh = await translateZh(dict.explainEn);
-        result.explain = zh || dict.explainEn;
+        result.explain = normalizeExplain(word, zh || dict.explainEn);
       }
-      result._source = "词典 + 翻译自动补全";
+      result._source = "词典+翻译 · 已按十列表头分配";
     }catch(e){
-      result.explain = word + "：技术面试常见术语，建议结合项目场景理解。";
-      result._source = "基础推断";
+      result.explain = normalizeExplain(word, "");
+      result._source = "基础推断 · 已按十列表头分配";
     }
+
+    if(!result.homo) result.homo = phoneticToHomo(result.ipa) || phoneticToHomo(word) || word;
+    if(!result.ipa) result.ipa = "—";
     result.tech = guessTech(word, result.explain);
-    result.level = guessLevel(word);
-    if(!result.homo) result.homo = phoneticToHomo(result.ipa) || phoneticToHomo(word);
+    result.cat = guessCat(word, result.tech, result.explain);
+    result.level = guessLevel(word, result.explain);
+    result.compare = normalizeCompare(result.compare);
     result.oneliner = makeOneliner(word, result.explain);
+    result.pron = result.pron || ipaToPron(result.ipa, word);
     return result;
   }
 
