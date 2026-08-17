@@ -361,7 +361,7 @@
       <div><b>用法/解释</b></div>
       <div><b>中文谐音</b></div>
       <div><b>音标</b></div>
-      <div><b>音变</b></div>
+      <div><b>发音</b></div>
       <div><b>技术栈</b></div>
       <div><b>重要程度</b></div>
       <div><b>对比词</b></div>
@@ -373,7 +373,7 @@
       <div><div class="k">用法/解释</div><div id="qExplain">—</div></div>
       <div><div class="k">中文谐音</div><div id="qHomo">—</div></div>
       <div><div class="k">音标</div><div id="qIpa">—</div></div>
-      <div><div class="k">音变</div><div id="qPron">—</div></div>
+      <div><div class="k">发音</div><div id="qPron">—</div></div>
       <div><div class="k">技术栈</div><div id="qTech">—</div></div>
       <div><div class="k">重要程度</div><div id="qLevel">—</div></div>
       <div><div class="k">对比词</div><div id="qCompare">—</div></div>
@@ -613,8 +613,9 @@
     document.getElementById("qWord").textContent = r.word || "—";
     document.getElementById("qExplain").textContent = r.explain || "—";
     document.getElementById("qHomo").textContent = r.homo || "—";
-    document.getElementById("qIpa").textContent = resolveIpa(r.ipa, r.word) || "—";
-    document.getElementById("qPron").textContent = resolveSoundChange(r.pron, r.word, r.ipa) || r.pron || "—";
+    var ipaShow = resolveIpa(r.ipa, r.word);
+    document.getElementById("qIpa").textContent = ipaShow || "—";
+    document.getElementById("qPron").textContent = ipaShow || "—";
     document.getElementById("qTech").textContent = formatTechs(r.techs || r.tech) || "—";
     document.getElementById("qLevel").textContent = r.level || "—";
     document.getElementById("qCompare").textContent = r.compare || "—";
@@ -801,22 +802,43 @@
     return s;
   }
 
-  function resolveIpa(ipa, word){
-    var n = normalizeIpa(ipa);
-    if(n) return n;
-    var w = String(word || "").trim().toLowerCase();
-    if(COMMON_IPA[w]) return COMMON_IPA[w];
-    return "";
+  function estimateIpa(word){
+    var w = String(word || "").trim();
+    if(!w) return "";
+    if(/^[A-Z0-9.+#-]{2,}$/.test(w) && w === w.toUpperCase()){
+      var letters = {A:"eɪ",B:"biː",C:"siː",D:"diː",E:"iː",F:"ef",G:"dʒiː",H:"eɪtʃ",I:"aɪ",J:"dʒeɪ",K:"keɪ",L:"el",M:"em",N:"en",O:"əʊ",P:"piː",Q:"kjuː",R:"ɑː",S:"es",T:"tiː",U:"juː",V:"viː",W:"ˈdʌbəljuː",X:"eks",Y:"waɪ",Z:"zed"};
+      return "/" + w.split("").map(function(c){ return letters[c] || c.toLowerCase(); }).join(" ") + "/";
+    }
+    var s = w.toLowerCase();
+    var map = [
+      ["tion","ʃən"],["sion","ʒən"],["ture","tʃə"],["sure","ʒə"],["able","əbl"],["ment","mənt"],
+      ["ing","ɪŋ"],["ed","d"],["ck","k"],["ph","f"],["ch","tʃ"],["sh","ʃ"],["th","θ"],["wh","w"],
+      ["qu","kw"],["ng","ŋ"],["ee","iː"],["ea","iː"],["oo","uː"],["ou","aʊ"],["ow","oʊ"],["oy","ɔɪ"],
+      ["ai","eɪ"],["ay","eɪ"],["au","ɔː"],["aw","ɔː"],["er","ə"],["or","ɔː"],["ar","ɑː"],["ir","ɜː"],
+      ["ur","ɜː"],["al","ɔːl"],["le","əl"]
+    ];
+    var out = "", i = 0;
+    while(i < s.length){
+      var hit = null, hitLen = 0;
+      for(var k=0;k<map.length;k++){
+        if(s.substr(i, map[k][0].length) === map[k][0] && map[k][0].length > hitLen){
+          hit = map[k][1]; hitLen = map[k][0].length;
+        }
+      }
+      if(hit){ out += hit; i += hitLen; continue; }
+      var ch = {a:"æ",b:"b",c:"k",d:"d",e:"e",f:"f",g:"ɡ",h:"h",i:"ɪ",j:"dʒ",k:"k",l:"l",m:"m",n:"n",o:"ɒ",p:"p",q:"k",r:"r",s:"s",t:"t",u:"ʌ",v:"v",w:"w",x:"ks",y:"ɪ",z:"z"};
+      out += ch[s[i]] || s[i];
+      i++;
+    }
+    return normalizeIpa(out);
   }
 
-  function resolveSoundChange(pron, word, ipa){
-    var p = String(pron || "").trim();
-    var w = String(word || "").trim();
-    if(!p || p === "—" || p.toLowerCase() === w.toLowerCase()) return "";
-    // 音变不应只是单词本身，也不应只是未清洗的音标重复
-    var ipaPlain = String(ipa || "").replace(/\//g, "");
-    if(p.replace(/\//g, "") === ipaPlain) return "";
-    return p;
+  function resolveIpa(ipa, word){
+    var n = normalizeIpa(ipa);
+    if(n && n !== "/—/") return n;
+    var w = String(word || "").trim().toLowerCase();
+    if(COMMON_IPA[w]) return COMMON_IPA[w];
+    return estimateIpa(word);
   }
 
   function pickBestIpa(entry){
@@ -1019,7 +1041,7 @@
         explain: local.explain,
         homo: local.homo || makeHomo(local.ipa, local.word),
         ipa: resolveIpa(local.ipa, local.word) || "—",
-        pron: local.pron || ipaToPron(local.ipa, local.word),
+        pron: resolveIpa(local.ipa, local.word) || "—",
         tech: formatTechs(techs0),
         techs: techs0,
         level: local.level || "了解",
@@ -1047,7 +1069,7 @@
     try{
       var dict = await fetchDictionary(word);
       result.ipa = resolveIpa(dict.ipa, word) || "—";
-      result.pron = dict.pron || ipaToPron(dict.ipa, word);
+      result.pron = result.ipa;
       result.compare = normalizeCompare(dict.compare);
       result.homo = makeHomo(dict.ipa, word);
       if(dict.explainEn){
@@ -1057,8 +1079,8 @@
       result._source = "词典+翻译 · 分类/音标/技术栈/重要程度已自动判断";
     }catch(e){
       result.explain = normalizeExplain(word, "");
-      result.ipa = "—";
-      result.pron = ipaToPron("", word);
+      result.ipa = resolveIpa("", word) || "—";
+      result.pron = result.ipa;
       result.homo = makeHomo("", word);
       result._source = "基础推断 · 已自动判断分类与重要程度";
     }
@@ -1069,7 +1091,7 @@
     result.level = guessLevel(word, result.explain, result.tech);
     result.homo = result.homo || makeHomo(result.ipa, word);
     result.ipa = resolveIpa(result.ipa, word) || "—";
-    result.pron = resolveSoundChange(result.pron || ipaToPron(result.ipa, word), word, result.ipa) || ipaToPron(result.ipa, word);
+    result.pron = result.ipa;
     result.compare = normalizeCompare(result.compare);
     result.oneliner = makeOneliner(word, result.explain);
     return result;
@@ -1260,7 +1282,7 @@
         explain: result.explain,
         homo: result.homo,
         ipa: resolveIpa(result.ipa, word) || "—",
-        pron: resolveSoundChange(result.pron, word, result.ipa) || result.pron || "",
+        pron: resolveIpa(result.ipa, word) || "—",
         tech: formatTechs(techs),
         techs: techs,
         level: result.level,
@@ -1392,10 +1414,8 @@
             '<div class="phonetic-block">' +
               (function(){
                 var ipaShow = resolveIpa(d.ipa, d.word);
-                var soundShow = resolveSoundChange(d.pron, d.word, ipaShow);
                 var html = '';
                 if(ipaShow) html += '<div class="phonetic-ipa"><b>音标</b>' + escapeHtml(ipaShow) + '</div>';
-                if(soundShow) html += '<div class="phonetic-sound"><b>音变</b>' + escapeHtml(soundShow) + '</div>';
                 if(d.homo) html += '<div class="phonetic-homo"><b>谐音</b>' + escapeHtml(d.homo) + '</div>';
                 return html;
               })() +
