@@ -1008,12 +1008,12 @@
       document.getElementById("searchInput").value = word;
       render();
       if(sub.issueNumber){
-        setQuickMsg("添加成功：「" + word + "」", false, true);
+        setQuickMsg("添加成功：「" + word + "」已写入社区，Excel「社区添加单词」将自动更新", false, true);
         showAddSuccessToast(word);
       } else if(sub.needsGithubClick){
-        setQuickMsg("「" + word + "」已填好。请在新打开的 GitHub 页面点击绿色 Submit new issue（需登录），完成后所有人都能看到。", false, false);
+        setQuickMsg("「" + word + "」已填好。请在新打开的 GitHub 页面点击绿色 Submit new issue（需登录），完成后会写入 Excel。", false, false);
       } else if(sub.emailed){
-        setQuickMsg("添加成功：「" + word + "」", false, true);
+        setQuickMsg("添加成功：「" + word + "」已通知维护者；配置同步后会写入 Excel", false, true);
         showAddSuccessToast(word);
       } else {
         setQuickMsg("添加成功：「" + word + "」", false, true);

@@ -4,6 +4,10 @@ on:
   issues:
     types: [opened, edited, labeled, unlabeled, closed, reopened]
   workflow_dispatch:
+  schedule:
+    # 兜底：即使偶发漏触发，也会定期把社区词写入 Excel
+    - cron: "*/30 * * * *"
+
 
 permissions:
   contents: write

@@ -21,13 +21,21 @@
 
 Secret 名必须是 `SUBMIT_PAT`：https://github.com/Tewelve-creator/twelve/settings/secrets/actions
 
-## 本机合并到 Excel
+## 网站添加 → 自动写入 Excel
+
+添加成功后流程：
+
+1. 站点创建带 `word-submission` 标签的 Issue  
+2. GitHub Actions 运行 `Sync community words`  
+3. 写入仓库 Excel 工作表 **「社区添加单词」**，并同步到 **「全部汇总」**  
+4. 更新 `docs/vocab-data.json` 与下载用 `interview-vocab.xlsx`
+
+也可本机手动合并：
 
 ```bash
 python merge_words_to_excel.py
 ```
 
-网站添加的词会写入 Excel 工作表 **「社区添加单词」**，并同步进 **「全部汇总」**。Actions 在有新投稿 Issue 时也会自动跑上述合并。
 
 ## 本地预览
 
