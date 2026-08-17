@@ -1,6 +1,24 @@
 {
-  "updatedAt": "2026-08-17T01:46:20.423Z",
+  "updatedAt": "2026-08-17T02:01:28.469Z",
   "words": [
+    {
+      "id": "gh_27",
+      "word": "static",
+      "cat": "社区·未分类",
+      "explain": "static：面试中需能解释其含义，并结合项目说明使用场景。",
+      "homo": "斯-特-阿-特-伊-克",
+      "ipa": "",
+      "pron": "static",
+      "tech": "通用",
+      "level": "了解",
+      "compare": "—",
+      "oneliner": "能说明 static 的含义，并举例它在项目中的用法。",
+      "trouble": [],
+      "issueNumber": 27,
+      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/27",
+      "createdAt": "2026-08-17T02:01:16Z",
+      "source": "community"
+    },
     {
       "id": "gh_26",
       "word": "boolean",
