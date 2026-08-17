@@ -220,11 +220,18 @@
   .explain{ font-size: .94rem; line-height:1.55; color: var(--ink); }
   .explain mark{ background: #f4e6c8; color: var(--ink); padding: 0 2px; border-radius:2px; }
   .oneliner{
-    font-size: .84rem; color: var(--ink-soft);
-    border-left: 2px solid var(--line);
-    padding-left: 10px;
-    line-height:1.5;
+    font-size: .88rem; color: var(--ink);
+    border-left: 3px solid var(--brand);
+    padding: 8px 12px;
+    line-height:1.55;
+    background: #f3f6f1;
+    border-radius: 0 8px 8px 0;
   }
+  .oneliner .ol-label{
+    display:block; font-size:.68rem; font-weight:700; letter-spacing:.06em;
+    color: var(--brand-dark); margin-bottom:4px;
+  }
+  .oneliner .ol-text{ color: var(--ink); }
   .compare{ font-size:.78rem; color: var(--ink-faint); }
   .compare b{ color: var(--ink-soft); font-weight:600; }
 
@@ -658,13 +665,36 @@
     return (data.responseData && data.responseData.translatedText) || "";
   }
 
+  function makeOneliner(word, explain){
+    var w = String(word || "").trim();
+    var e = String(explain || "").trim()
+      .replace(/^一句话[总结回答]*[：:]\s*/i, "")
+      .replace(new RegExp("^" + w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\s*[：:]\\s*", "i"), "")
+      .trim();
+    if(!e || /技术面试常见术语/.test(e)){
+      return "面试时一句话说明 " + w + " 是什么、用在哪、解决什么问题。";
+    }
+    var short = e.split(/[。！？；;\n]/)[0].trim();
+    short = short.replace(/^[指是为]/, "").trim();
+    if(short.length > 42) short = short.slice(0, 42) + "…";
+    return "面试一句话：" + w + " 指" + short + "。";
+  }
+
+  function formatOnelinerDisplay(oneliner){
+    var t = String(oneliner || "").trim()
+      .replace(/^一句话[总结回答]*[：:]\s*/i, "")
+      .replace(/^面试一句话[：:]\s*/i, "")
+      .trim();
+    return t;
+  }
+
   async function searchWordFields(word){
     var local = BASE.filter(function(d){ return d.word.toLowerCase() === word.toLowerCase(); })[0];
     if(local){
       return {
         word: local.word, cat: local.cat, explain: local.explain, homo: local.homo, ipa: local.ipa,
         pron: local.pron || word, tech: local.tech, level: local.level, compare: local.compare,
-        oneliner: local.oneliner, _source: "命中站内词表"
+        oneliner: local.oneliner || makeOneliner(local.word, local.explain), _source: "命中站内词表"
       };
     }
     var result = {
@@ -689,7 +719,7 @@
     result.tech = guessTech(word, result.explain);
     result.level = guessLevel(word);
     if(!result.homo) result.homo = phoneticToHomo(result.ipa) || phoneticToHomo(word);
-    if(!result.oneliner) result.oneliner = "一句话：" + String(result.explain).slice(0, 72);
+    result.oneliner = makeOneliner(word, result.explain);
     return result;
   }
 
@@ -962,6 +992,9 @@
           '</div>' +
           '<div class="body-col">' +
             '<div class="explain">' + highlight(d.explain, qRaw) + '</div>' +
+            '<div class="oneliner"><span class="ol-label">一句话总结</span><span class="ol-text">' +
+              highlight(formatOnelinerDisplay(d.oneliner || makeOneliner(d.word, d.explain)), qRaw) +
+            '</span></div>' +
             (d.compare && d.compare !== '—' ? '<div class="compare"><b>对比：</b>' + escapeHtml(d.compare) + '</div>' : '') +
           '</div>' +
           '<div class="meta-col">' +
