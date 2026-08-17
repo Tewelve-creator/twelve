@@ -1,6 +1,24 @@
 {
-  "updatedAt": "2026-08-17T01:22:39.542Z",
+  "updatedAt": "2026-08-17T01:23:04.174Z",
   "words": [
+    {
+      "id": "gh_20",
+      "word": "del",
+      "cat": "社区投稿",
+      "explain": "del：技术面试常见术语，建议结合项目场景理解。",
+      "homo": "德-诶-勒",
+      "ipa": "",
+      "pron": "del",
+      "tech": "通用",
+      "level": "了解",
+      "compare": "—",
+      "oneliner": "一句话：del：技术面试常见术语，建议结合项目场景理解。",
+      "trouble": [],
+      "issueNumber": 20,
+      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/20",
+      "createdAt": "2026-08-17T01:22:52Z",
+      "source": "community"
+    },
     {
       "id": "gh_19",
       "word": "delete",
