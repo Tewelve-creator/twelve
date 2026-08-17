@@ -1,6 +1,24 @@
 {
-  "updatedAt": "2026-08-17T02:24:07.884Z",
+  "updatedAt": "2026-08-17T02:29:32.953Z",
   "words": [
+    {
+      "id": "gh_30",
+      "word": "adminopen",
+      "cat": "社区投稿",
+      "explain": "adminopen：技术面试常见术语，建议结合项目场景理解。",
+      "homo": "德-姆-伊-恩-普-诶-恩",
+      "ipa": "",
+      "pron": "adminopen",
+      "tech": "通用",
+      "level": "了解",
+      "compare": "—",
+      "oneliner": "一句话：adminopen：技术面试常见术语，建议结合项目场景理解。",
+      "trouble": [],
+      "issueNumber": 30,
+      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/30",
+      "createdAt": "2026-08-17T02:29:22Z",
+      "source": "community"
+    },
     {
       "id": "gh_29",
       "word": "Blue",
