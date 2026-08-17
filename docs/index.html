@@ -283,6 +283,12 @@
   }
   .btn-primary{ background:var(--brand-dark); border-color:var(--brand-dark); color:#f1ead9; }
   .btn-primary:disabled{ opacity:.6; cursor:wait; }
+  .btn-insert{
+    background:#2c5c53; border-color:#2c5c53; color:#f1ead9;
+    display:none;
+  }
+  .btn-insert.show{ display:inline-flex; align-items:center; }
+  .btn-insert:disabled{ opacity:.6; cursor:wait; }
   .btn-ghost{ background:transparent; }
   .quick-msg{ min-height:1.3em; margin:0 0 12px; font-size:.88rem; color:var(--brand-dark); max-width:680px; }
   .quick-msg.error{ color:var(--tag-a); }
@@ -344,7 +350,8 @@
   <p class="lede">输入难词即可 AI 自动补全并录入；其他人也可添加，刷新后同步可见。点击喇叭可听发音。<span id="syncHint"></span></p>
   <div class="quick-add">
     <input id="quickWord" type="text" maxlength="80" placeholder="输入难词，例如：idempotent" autocomplete="off" />
-    <button type="button" class="btn btn-primary" id="quickAiBtn">AI 查找并录入</button>
+    <button type="button" class="btn btn-primary" id="quickAiBtn">AI 查找</button>
+    <button type="button" class="btn btn-insert" id="quickInsertBtn">录入</button>
   </div>
   <p class="quick-msg" id="quickMsg" aria-live="polite"></p>
   <div class="ai-sheet" id="quickSheet">
@@ -1213,12 +1220,30 @@
     return { ok: true, needsGithubClick: true, issueComposeUrl: composeUrl, emailed: !!FORM_EMAIL };
   }
 
-  async function aiLookupAndInsert(){
+  var pendingEntry = null;
+
+  function hideInsertBtn(){
+    pendingEntry = null;
+    var insertBtn = document.getElementById("quickInsertBtn");
+    insertBtn.classList.remove("show");
+    insertBtn.disabled = false;
+    insertBtn.textContent = "录入";
+  }
+
+  function showInsertBtn(){
+    var insertBtn = document.getElementById("quickInsertBtn");
+    insertBtn.classList.add("show");
+    insertBtn.disabled = false;
+    insertBtn.textContent = "录入";
+  }
+
+  async function aiLookupOnly(){
     var word = document.getElementById("quickWord").value.trim();
     if(!word){
       setQuickMsg("请先输入难词。", true);
       return;
     }
+    hideInsertBtn();
     var btn = document.getElementById("quickAiBtn");
     btn.disabled = true;
     btn.textContent = "查找中…";
@@ -1226,10 +1251,10 @@
     try{
       var result = await searchWordFields(word);
       result.word = word;
-      result._previewCat = communityCat(result.cat || "未分类", result.techs || guessTechs(word, result.explain));
-      renderSheet(result);
       var techs = result.techs && result.techs.length ? result.techs : guessTechs(word, result.explain);
-      var entry = {
+      result._previewCat = communityCat(result.cat || "未分类", techs);
+      renderSheet(result);
+      pendingEntry = {
         word: result.word,
         cat: communityCat(result.cat || "未分类", techs),
         explain: result.explain,
@@ -1243,7 +1268,33 @@
         oneliner: result.oneliner,
         createdAt: new Date().toISOString()
       };
-      setQuickMsg("补全完成，正在同步…", false);
+      showInsertBtn();
+      setQuickMsg("查找成功：「" + word + "」已补全，确认无误后点击「录入」。", false, true);
+      document.getElementById("quickSheet").scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }catch(err){
+      console.error(err);
+      hideInsertBtn();
+      setQuickMsg(err.message || "查找失败", true);
+    }finally{
+      btn.disabled = false;
+      btn.textContent = "AI 查找";
+    }
+  }
+
+  async function aiInsertOnly(){
+    if(!pendingEntry || !pendingEntry.word){
+      setQuickMsg("请先点击「AI 查找」补全词条。", true);
+      return;
+    }
+    var word = pendingEntry.word;
+    var entry = pendingEntry;
+    var insertBtn = document.getElementById("quickInsertBtn");
+    var aiBtn = document.getElementById("quickAiBtn");
+    insertBtn.disabled = true;
+    aiBtn.disabled = true;
+    insertBtn.textContent = "录入中…";
+    setQuickMsg("正在录入「" + word + "」…", false);
+    try{
       var sub = await submitCommunity(entry);
       COMMUNITY.unshift(Object.assign({
         id: sub.issueNumber ? ("gh_" + sub.issueNumber) : ("u_" + Date.now()),
@@ -1285,19 +1336,22 @@
             issueUrl: sub.issueUrl || null
           }));
         }catch(e){}
+        hideInsertBtn();
         setTimeout(function(){
           location.href = "./?added=" + encodeURIComponent(word) + "&_=" + Date.now();
         }, 1000);
       } else {
+        hideInsertBtn();
         setTimeout(function(){ refreshCommunity(); }, 2500);
       }
       document.getElementById("list").scrollIntoView({ behavior: "smooth", block: "start" });
     }catch(err){
       console.error(err);
       setQuickMsg(err.message || "录入失败", true);
+      insertBtn.disabled = false;
+      insertBtn.textContent = "录入";
     }finally{
-      btn.disabled = false;
-      btn.textContent = "AI 查找并录入";
+      aiBtn.disabled = false;
     }
   }
 
@@ -1487,9 +1541,21 @@
     chip.classList.toggle("active", state.source === val);
     render();
   });
-  document.getElementById("quickAiBtn").addEventListener("click", aiLookupAndInsert);
+  document.getElementById("quickAiBtn").addEventListener("click", aiLookupOnly);
+  document.getElementById("quickInsertBtn").addEventListener("click", aiInsertOnly);
+  document.getElementById("quickWord").addEventListener("input", function(){
+    hideInsertBtn();
+    document.getElementById("quickSheet").classList.remove("show");
+  });
   document.getElementById("quickWord").addEventListener("keydown", function(e){
-    if(e.key === "Enter"){ e.preventDefault(); aiLookupAndInsert(); }
+    if(e.key === "Enter"){
+      e.preventDefault();
+      if(pendingEntry && document.getElementById("quickInsertBtn").classList.contains("show")){
+        aiInsertOnly();
+      } else {
+        aiLookupOnly();
+      }
+    }
   });
 
 
