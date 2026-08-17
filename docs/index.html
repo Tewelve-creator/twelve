@@ -272,6 +272,18 @@
   .btn-ghost{ background:transparent; }
   .quick-msg{ min-height:1.3em; margin:0 0 12px; font-size:.88rem; color:var(--brand-dark); max-width:680px; }
   .quick-msg.error{ color:var(--tag-a); }
+  .quick-msg.success{
+    color:#1a5c3a; background:#e7f5ee; border:1px solid #9dceb3;
+    padding:10px 14px; border-radius:10px; font-weight:600; font-size:.95rem;
+  }
+  .toast-success{
+    position:fixed; left:50%; top:18%; transform:translateX(-50%) translateY(-8px);
+    z-index:2000; padding:14px 22px; border-radius:12px;
+    background:#1a5c3a; color:#f3fbf6; font-size:1.05rem; font-weight:700;
+    box-shadow:0 10px 28px rgba(26,92,58,.28);
+    opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease;
+  }
+  .toast-success.show{ opacity:1; transform:translateX(-50%) translateY(0); }
   .ai-sheet{
     display:none; max-width:760px; margin:0 0 18px; border:1px solid #1e3a5f; border-radius:10px; overflow:hidden; background:#fff;
   }
@@ -390,6 +402,8 @@
   <span>数据来源：面试常用单词整理表 · 支持用户添加并同步 Excel</span>
   <a class="dl" href="./interview-vocab.xlsx" download>下载完整 Excel 表格</a>
 </footer>
+
+<div class="toast-success" id="toastSuccess" role="status" aria-live="polite">添加成功</div>
 
 <script src="./submit-config.js"></script>
 <script>
@@ -543,10 +557,21 @@
 
   function levelRank(l){ return l === "必问" ? 0 : l === "常问" ? 1 : 2; }
 
-  function setQuickMsg(text, isError){
+  function setQuickMsg(text, isError, isSuccess){
     var el = document.getElementById("quickMsg");
     el.textContent = text || "";
     el.classList.toggle("error", !!isError);
+    el.classList.toggle("success", !!isSuccess && !isError);
+  }
+
+  function showAddSuccessToast(word){
+    var toast = document.getElementById("toastSuccess");
+    toast.textContent = word ? ("添加成功：「" + word + "」") : "添加成功";
+    toast.classList.add("show");
+    clearTimeout(showAddSuccessToast._timer);
+    showAddSuccessToast._timer = setTimeout(function(){
+      toast.classList.remove("show");
+    }, 2800);
   }
 
   function renderSheet(r){
@@ -852,13 +877,16 @@
       document.getElementById("searchInput").value = word;
       render();
       if(sub.issueNumber){
-        setQuickMsg("「" + word + "」添加成功，3 秒后自动刷新…", false);
+        setQuickMsg("添加成功：「" + word + "」已同步，3 秒后自动刷新…", false, true);
+        showAddSuccessToast(word);
       } else if(sub.needsGithubClick){
-        setQuickMsg("「" + word + "」已填好。请在新打开的 GitHub 页面点击绿色 Submit new issue（需登录），完成后所有人都能看到。", false);
+        setQuickMsg("「" + word + "」已填好。请在新打开的 GitHub 页面点击绿色 Submit new issue（需登录），完成后所有人都能看到。", false, false);
       } else if(sub.emailed){
-        setQuickMsg("「" + word + "」添加成功，3 秒后自动刷新…", false);
+        setQuickMsg("添加成功：「" + word + "」，3 秒后自动刷新…", false, true);
+        showAddSuccessToast(word);
       } else {
-        setQuickMsg("「" + word + "」添加成功，3 秒后自动刷新…", false);
+        setQuickMsg("添加成功：「" + word + "」，3 秒后自动刷新…", false, true);
+        showAddSuccessToast(word);
       }
       if(!sub.needsGithubClick){
         setTimeout(function(){ location.reload(); }, 3000);
