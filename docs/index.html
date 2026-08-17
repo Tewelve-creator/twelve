@@ -173,18 +173,20 @@
     border-radius: 12px;
     padding: 16px 18px;
     display: grid;
-    grid-template-columns: 200px 1fr 150px;
+    grid-template-columns: minmax(280px, 34%) 1fr 130px;
     gap: 18px;
     transition: border-color .15s ease, box-shadow .15s ease;
   }
   .card:hover{ border-color: var(--brand); box-shadow: 0 4px 16px rgba(42,37,29,.08); }
 
-  .card .word-col{ display:flex; flex-direction:column; gap:6px; }
-  .word-line{ display:flex; align-items:center; gap:8px; }
+  .card .word-col{ display:flex; flex-direction:column; gap:6px; min-width:0; }
+  .word-line{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
   .word{
     font-family:"Fraunces", serif;
     font-weight: 600;
     font-size: 1.25rem;
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
   .speak-btn{
     width: 26px; height:26px; border-radius:50%;
