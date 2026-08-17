@@ -206,18 +206,14 @@
   .speak-btn.playing{ background: var(--brand-dark); color:#f1ead9; }
   .speak-btn svg{ width:12px; height:12px; }
   .phonetic-block{ display:flex; flex-direction:column; gap:3px; }
-  .phonetic-ipa{
-    font-family:"IBM Plex Mono", monospace;
-    font-size: .8rem;
-    color: var(--ink);
-  }
-  .phonetic-sound, .phonetic-homo{
+  .phonetic-ipa, .phonetic-sound, .phonetic-homo{
     font-family:"IBM Plex Mono", monospace;
     font-size: .72rem;
     color: var(--ink-faint);
     line-height:1.35;
   }
-  .phonetic-sound b, .phonetic-homo b{
+  .phonetic-ipa{ font-size: .8rem; color: var(--ink); }
+  .phonetic-ipa b, .phonetic-sound b, .phonetic-homo b{
     font-weight:600; color: var(--ink-soft); margin-right:4px;
   }
   .cat-tag{
@@ -475,7 +471,7 @@
       word: c.word,
       explain: c.explain || "（暂无解释）",
       homo: c.homo || "",
-      ipa: normalizeIpa(c.ipa) || c.ipa || "",
+      ipa: resolveIpa(c.ipa, c.word) || "",
       pron: c.pron || "",
       tech: formatTechs(techs),
       techs: techs,
@@ -610,8 +606,8 @@
     document.getElementById("qWord").textContent = r.word || "—";
     document.getElementById("qExplain").textContent = r.explain || "—";
     document.getElementById("qHomo").textContent = r.homo || "—";
-    document.getElementById("qIpa").textContent = normalizeIpa(r.ipa) || r.ipa || "—";
-    document.getElementById("qPron").textContent = r.pron || "—";
+    document.getElementById("qIpa").textContent = resolveIpa(r.ipa, r.word) || "—";
+    document.getElementById("qPron").textContent = resolveSoundChange(r.pron, r.word, r.ipa) || r.pron || "—";
     document.getElementById("qTech").textContent = formatTechs(r.techs || r.tech) || "—";
     document.getElementById("qLevel").textContent = r.level || "—";
     document.getElementById("qCompare").textContent = r.compare || "—";
@@ -777,23 +773,43 @@
   }
 
 
+  var COMMON_IPA = {
+    for:"/fɔːr/", of:"/əv/", the:"/ðə/", a:"/ə/", an:"/æn/", to:"/tuː/", and:"/ænd/",
+    is:"/ɪz/", are:"/ɑːr/", be:"/biː/", in:"/ɪn/", on:"/ɒn/", at:"/æt/",
+    by:"/baɪ/", as:"/æz/", or:"/ɔːr/", if:"/ɪf/", it:"/ɪt/", this:"/ðɪs/", that:"/ðæt/",
+    with:"/wɪð/", from:"/frɒm/", not:"/nɒt/", but:"/bʌt/", can:"/kæn/", will:"/wɪl/",
+    do:"/duː/", did:"/dɪd/", has:"/hæz/", have:"/hæv/", had:"/hæd/", was:"/wɒz/", were:"/wɜːr/"
+  };
+
   function normalizeIpa(ipa){
     var s = String(ipa || "").trim();
     if(!s || s === "—") return "";
-    // 只保留标准 IPA 字符与斜线、重音
     s = s.replace(/^[\[\(]+|[\]\)]+$/g, "").trim();
     s = s.replace(/\s+/g, " ");
-    // 去掉非 IPA 常见杂质
-    if(!/^[\s\/ˈˌː.a-zɑɒæəɜɪʊɔʌθðʃʒŋɡʧʤʔˈˌ\-]+$/i.test(s.replace(/[\/]/g, ""))){
-      // 仍尝试清洗
-      s = s.replace(/[“”"']/g, "");
-    }
+    s = s.replace(/[“”"']/g, "");
     if(!s.startsWith("/")) s = "/" + s;
     if(!s.endsWith("/")) s = s + "/";
-    // 压缩重复斜线
     s = s.replace(/\/+/g, "/");
     if(s === "//") return "";
     return s;
+  }
+
+  function resolveIpa(ipa, word){
+    var n = normalizeIpa(ipa);
+    if(n) return n;
+    var w = String(word || "").trim().toLowerCase();
+    if(COMMON_IPA[w]) return COMMON_IPA[w];
+    return "";
+  }
+
+  function resolveSoundChange(pron, word, ipa){
+    var p = String(pron || "").trim();
+    var w = String(word || "").trim();
+    if(!p || p === "—" || p.toLowerCase() === w.toLowerCase()) return "";
+    // 音变不应只是单词本身，也不应只是未清洗的音标重复
+    var ipaPlain = String(ipa || "").replace(/\//g, "");
+    if(p.replace(/\//g, "") === ipaPlain) return "";
+    return p;
   }
 
   function pickBestIpa(entry){
@@ -995,7 +1011,7 @@
         cat: local.cat || "未分类",
         explain: local.explain,
         homo: local.homo || makeHomo(local.ipa, local.word),
-        ipa: normalizeIpa(local.ipa) || local.ipa || "—",
+        ipa: resolveIpa(local.ipa, local.word) || "—",
         pron: local.pron || ipaToPron(local.ipa, local.word),
         tech: formatTechs(techs0),
         techs: techs0,
@@ -1023,7 +1039,7 @@
 
     try{
       var dict = await fetchDictionary(word);
-      result.ipa = normalizeIpa(dict.ipa) || "—";
+      result.ipa = resolveIpa(dict.ipa, word) || "—";
       result.pron = dict.pron || ipaToPron(dict.ipa, word);
       result.compare = normalizeCompare(dict.compare);
       result.homo = makeHomo(dict.ipa, word);
@@ -1045,8 +1061,8 @@
     result.cat = guessCat(word, result.tech, result.explain);
     result.level = guessLevel(word, result.explain, result.tech);
     result.homo = result.homo || makeHomo(result.ipa, word);
-    result.ipa = normalizeIpa(result.ipa) || result.ipa || "—";
-    result.pron = result.pron || ipaToPron(result.ipa, word);
+    result.ipa = resolveIpa(result.ipa, word) || "—";
+    result.pron = resolveSoundChange(result.pron || ipaToPron(result.ipa, word), word, result.ipa) || ipaToPron(result.ipa, word);
     result.compare = normalizeCompare(result.compare);
     result.oneliner = makeOneliner(word, result.explain);
     return result;
@@ -1218,8 +1234,8 @@
         cat: communityCat(result.cat || "未分类", techs),
         explain: result.explain,
         homo: result.homo,
-        ipa: normalizeIpa(result.ipa) || result.ipa || "—",
-        pron: result.pron,
+        ipa: resolveIpa(result.ipa, word) || "—",
+        pron: resolveSoundChange(result.pron, word, result.ipa) || result.pron || "",
         tech: formatTechs(techs),
         techs: techs,
         level: result.level,
@@ -1320,9 +1336,15 @@
               '</button>' + badge +
             '</div>' +
             '<div class="phonetic-block">' +
-              (d.ipa ? '<div class="phonetic-ipa">' + escapeHtml(normalizeIpa(d.ipa) || d.ipa) + '</div>' : '') +
-              (d.pron ? '<div class="phonetic-sound"><b>音变</b>' + escapeHtml(d.pron) + '</div>' : '') +
-              (d.homo ? '<div class="phonetic-homo"><b>谐音</b>' + escapeHtml(d.homo) + '</div>' : '') +
+              (function(){
+                var ipaShow = resolveIpa(d.ipa, d.word);
+                var soundShow = resolveSoundChange(d.pron, d.word, ipaShow);
+                var html = '';
+                if(ipaShow) html += '<div class="phonetic-ipa"><b>音标</b>' + escapeHtml(ipaShow) + '</div>';
+                if(soundShow) html += '<div class="phonetic-sound"><b>音变</b>' + escapeHtml(soundShow) + '</div>';
+                if(d.homo) html += '<div class="phonetic-homo"><b>谐音</b>' + escapeHtml(d.homo) + '</div>';
+                return html;
+              })() +
             '</div>' +
             '<div class="cat-tag">' + escapeHtml(d.cat) + '</div>' +
           '</div>' +
