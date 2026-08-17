@@ -1,6 +1,24 @@
 {
-  "updatedAt": "2026-08-17T01:02:15.606Z",
+  "updatedAt": "2026-08-17T01:02:29.700Z",
   "words": [
+    {
+      "id": "gh_11",
+      "word": "IS",
+      "cat": "社区投稿",
+      "explain": "IS：技术面试常见术语，建议结合项目场景理解。",
+      "homo": "伊-斯",
+      "ipa": "",
+      "pron": "IS",
+      "tech": "通用",
+      "level": "了解",
+      "compare": "—",
+      "oneliner": "一句话：IS：技术面试常见术语，建议结合项目场景理解。",
+      "trouble": [],
+      "issueNumber": 11,
+      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/11",
+      "createdAt": "2026-08-17T01:02:17Z",
+      "source": "community"
+    },
     {
       "id": "gh_10",
       "word": "IS",
