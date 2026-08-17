@@ -1,6 +1,24 @@
 {
-  "updatedAt": "2026-08-17T01:21:26.419Z",
+  "updatedAt": "2026-08-17T01:21:47.036Z",
   "words": [
+    {
+      "id": "gh_16",
+      "word": "idemmode",
+      "cat": "社区投稿",
+      "explain": "idemmode：技术面试常见术语，建议结合项目场景理解。",
+      "homo": "伊-德-诶-姆-姆-德-诶",
+      "ipa": "",
+      "pron": "idemmode",
+      "tech": "通用",
+      "level": "了解",
+      "compare": "—",
+      "oneliner": "一句话：idemmode：技术面试常见术语，建议结合项目场景理解。",
+      "trouble": [],
+      "issueNumber": 16,
+      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/16",
+      "createdAt": "2026-08-17T01:21:38Z",
+      "source": "community"
+    },
     {
       "id": "gh_15",
       "word": "add",
