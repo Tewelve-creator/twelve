@@ -1,6 +1,24 @@
 {
-  "updatedAt": "2026-08-17T01:23:04.174Z",
+  "updatedAt": "2026-08-17T01:26:07.809Z",
   "words": [
+    {
+      "id": "gh_21",
+      "word": "for",
+      "cat": "社区投稿",
+      "explain": "for：技术面试常见术语，建议结合项目场景理解。",
+      "homo": "弗-尔",
+      "ipa": "",
+      "pron": "for",
+      "tech": "通用",
+      "level": "了解",
+      "compare": "—",
+      "oneliner": "一句话：for：技术面试常见术语，建议结合项目场景理解。",
+      "trouble": [],
+      "issueNumber": 21,
+      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/21",
+      "createdAt": "2026-08-17T01:25:57Z",
+      "source": "community"
+    },
     {
       "id": "gh_20",
       "word": "del",
