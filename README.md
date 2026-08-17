@@ -27,6 +27,8 @@ Secret 名必须是 `SUBMIT_PAT`：https://github.com/Tewelve-creator/twelve/set
 python merge_words_to_excel.py
 ```
 
+网站添加的词会写入 Excel 工作表 **「社区添加单词」**，并同步进 **「全部汇总」**。Actions 在有新投稿 Issue 时也会自动跑上述合并。
+
 ## 本地预览
 
 ```bash

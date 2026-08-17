@@ -17,9 +17,10 @@ DOCS = ROOT / "docs"
 ISSUE_REPO = "Tewelve-creator/twelve"
 
 HEADER = [
-    "类别", "单词", "用法/解释", "中文谐音", "音标",
+    "分类", "单词", "用法/解释", "中文谐音", "音标",
     "发音", "技术栈", "重要程度", "对比词", "一句话回答",
 ]
+COMMUNITY_SHEET = "社区添加单词"
 
 
 def pick(body: str, key: str) -> str:
@@ -104,13 +105,51 @@ def word_to_row(w: dict) -> list[str]:
     ]
 
 
-def merge_into_workbook(xlsx_path: Path, community: list[dict]) -> tuple[int, int]:
+def ensure_header_row(ws) -> None:
+    if ws.max_row < 1 or all(c.value is None for c in ws[1]):
+        ws.append(HEADER)
+        return
+    # 对齐表头列名
+    for i, name in enumerate(HEADER, start=1):
+        if ws.cell(1, i).value != name:
+            ws.cell(1, i).value = name
+
+
+def sync_community_sheet(wb, community: list[dict]) -> int:
+    """新建/重建「社区添加单词」表，只存放网站社区投稿。"""
+    if COMMUNITY_SHEET in wb.sheetnames:
+        ws = wb[COMMUNITY_SHEET]
+        wb.remove(ws)
+    # 插到「全部汇总」后面，方便查找
+    idx = 1
+    if "全部汇总" in wb.sheetnames:
+        idx = wb.sheetnames.index("全部汇总") + 1
+    ws = wb.create_sheet(COMMUNITY_SHEET, idx)
+    ws.append(HEADER)
+    rows = []
+    seen = set()
+    for w in community:
+        row = word_to_row(w)
+        key = row[1].strip().lower()
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        rows.append(row)
+    # 按单词排序，便于浏览
+    rows.sort(key=lambda r: r[1].lower())
+    for row in rows:
+        ws.append(row)
+    return len(rows)
+
+
+def merge_into_workbook(xlsx_path: Path, community: list[dict]) -> tuple[int, int, int]:
     import openpyxl
 
     wb = openpyxl.load_workbook(xlsx_path)
     if "全部汇总" not in wb.sheetnames:
         raise SystemExit(f"missing sheet 全部汇总 in {xlsx_path}")
     ws = wb["全部汇总"]
+    ensure_header_row(ws)
 
     existing = set()
     for row in ws.iter_rows(min_row=2, max_col=2, values_only=True):
@@ -126,6 +165,8 @@ def merge_into_workbook(xlsx_path: Path, community: list[dict]) -> tuple[int, in
         existing.add(key)
         added += 1
 
+    community_n = sync_community_sheet(wb, community)
+
     total = sum(
         1
         for row in ws.iter_rows(min_row=2, max_col=2, values_only=True)
@@ -133,7 +174,7 @@ def merge_into_workbook(xlsx_path: Path, community: list[dict]) -> tuple[int, in
     )
     wb.save(xlsx_path)
     wb.close()
-    return added, total
+    return added, total, community_n
 
 
 def export_vocab_json(xlsx_path: Path) -> int:
@@ -170,12 +211,12 @@ def main() -> None:
 
     primary = None
     last_err = None
-    added = total = 0
+    added = total = community_n = 0
     for path in candidates:
         try:
-            added, total = merge_into_workbook(path, community)
+            added, total, community_n = merge_into_workbook(path, community)
             primary = path
-            print(f"merged into {path}: +{added}, total {total}")
+            print(f"merged into {path}: +{added} to 全部汇总, total {total}; 社区添加单词 {community_n}")
             break
         except PermissionError as e:
             last_err = e
