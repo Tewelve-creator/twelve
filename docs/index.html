@@ -315,7 +315,7 @@
 <header class="hero">
   <div class="kicker">Interview Vocabulary Index</div>
   <h1>面试常用单词，<em>随手一查</em>。</h1>
-  <p class="lede">输入难词即可 AI 自动补全并录入；无需填写 Token，其他人刷新即可同步看到。点击喇叭可听发音。<span id="syncHint"></span></p>
+  <p class="lede">输入难词即可 AI 自动补全并录入；其他人也可添加，刷新后同步可见。点击喇叭可听发音。<span id="syncHint"></span></p>
   <div class="quick-add">
     <input id="quickWord" type="text" maxlength="80" placeholder="输入难词，例如：idempotent" autocomplete="off" />
     <button type="button" class="btn btn-primary" id="quickAiBtn">AI 查找并录入</button>
@@ -734,9 +734,8 @@
     return (window.TWELVE_SUBMIT && window.TWELVE_SUBMIT.githubToken) || "";
   }
 
-  async function submitCommunity(entry){
-    var title = "[词条投稿] " + entry.word;
-    var body = [
+  function buildIssueMarkdown(entry){
+    return [
       "## 投稿词条",
       "",
       "- **分类**: " + (entry.cat || "社区投稿"),
@@ -752,40 +751,66 @@
       "",
       "> 来自站点 AI 录入 · " + (entry.createdAt || new Date().toISOString())
     ].join("\n");
+  }
+
+  function issueComposeUrl(entry){
+    var title = "[词条投稿] " + entry.word;
+    return "https://github.com/" + ISSUE_REPO + "/issues/new"
+      + "?labels=" + encodeURIComponent("word-submission")
+      + "&title=" + encodeURIComponent(title)
+      + "&body=" + encodeURIComponent(buildIssueMarkdown(entry));
+  }
+
+  async function submitCommunity(entry){
+    var title = "[词条投稿] " + entry.word;
+    var body = buildIssueMarkdown(entry);
     var token = getSubmitToken();
 
     if(token){
-      var res = await fetch("https://api.github.com/repos/" + ISSUE_REPO + "/issues", {
-        method: "POST",
-        headers: {
-          Authorization: "Bearer " + token,
-          Accept: "application/vnd.github+json",
-          "Content-Type": "application/json",
-          "X-GitHub-Api-Version": "2022-11-28"
-        },
-        body: JSON.stringify({ title: title, body: body, labels: ["word-submission"] })
-      });
-      var data = await res.json().catch(function(){ return {}; });
-      if(!res.ok) throw new Error(data.message || ("GitHub " + res.status));
-      if(FORM_EMAIL){
-        fetch("https://formsubmit.co/ajax/" + encodeURIComponent(FORM_EMAIL), {
+      try{
+        var res = await fetch("https://api.github.com/repos/" + ISSUE_REPO + "/issues", {
           method: "POST",
-          headers: { "Content-Type": "application/json", Accept: "application/json" },
-          body: JSON.stringify({ _subject: title, ...entry, issue: data.number, _template: "table", _captcha: "false" })
-        }).catch(function(){});
+          headers: {
+            Authorization: "Bearer " + token,
+            Accept: "application/vnd.github+json",
+            "Content-Type": "application/json",
+            "X-GitHub-Api-Version": "2022-11-28"
+          },
+          body: JSON.stringify({ title: title, body: body, labels: ["word-submission"] })
+        });
+        var data = await res.json().catch(function(){ return {}; });
+        if(res.ok){
+          if(FORM_EMAIL){
+            fetch("https://formsubmit.co/ajax/" + encodeURIComponent(FORM_EMAIL), {
+              method: "POST",
+              headers: { "Content-Type": "application/json", Accept: "application/json" },
+              body: JSON.stringify({ _subject: title, ...entry, issue: data.number, _template: "table", _captcha: "false" })
+            }).catch(function(){});
+          }
+          return { ok: true, issueNumber: data.number, issueUrl: data.html_url };
+        }
+        console.warn("GitHub issue create failed", res.status, data);
+      }catch(err){
+        console.warn("GitHub issue create error", err);
       }
-      return { ok: true, issueNumber: data.number, issueUrl: data.html_url };
     }
 
     if(FORM_EMAIL){
-      await fetch("https://formsubmit.co/ajax/" + encodeURIComponent(FORM_EMAIL), {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ _subject: title, ...entry, _template: "table", _captcha: "false" })
-      });
-      return { ok: true, emailed: true };
+      try{
+        await fetch("https://formsubmit.co/ajax/" + encodeURIComponent(FORM_EMAIL), {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify({ _subject: title, ...entry, _template: "table", _captcha: "false" })
+        });
+      }catch(err){
+        console.warn("FormSubmit failed", err);
+      }
     }
-    return { ok: true, localOnly: true };
+
+    // 无 Token / API 失败时：打开 GitHub 预填 Issue，任何人登录后点一次 Submit 即可同步给所有人
+    var composeUrl = issueComposeUrl(entry);
+    try{ window.open(composeUrl, "_blank", "noopener"); }catch(e){}
+    return { ok: true, needsGithubClick: true, issueComposeUrl: composeUrl, emailed: !!FORM_EMAIL };
   }
 
   async function aiLookupAndInsert(){
@@ -828,8 +853,10 @@
       render();
       if(sub.issueNumber){
         setQuickMsg("「" + word + "」已同步。其他人刷新即可看到，随后会写入 Excel。", false);
+      } else if(sub.needsGithubClick){
+        setQuickMsg("「" + word + "」已填好。请在新打开的 GitHub 页面点击绿色 Submit new issue（需登录），完成后所有人都能看到。", false);
       } else if(sub.emailed){
-        setQuickMsg("「" + word + "」已录入并邮件通知。维护者配置 SUBMIT_PAT 后可自动多人同步。", false);
+        setQuickMsg("「" + word + "」已录入并邮件通知维护者。", false);
       } else {
         setQuickMsg("「" + word + "」已录入到本页。", false);
       }

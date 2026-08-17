@@ -3,9 +3,6 @@ name: Deploy GitHub Pages
 on:
   push:
     branches: [master, main]
-    paths:
-      - "docs/**"
-      - ".github/workflows/pages.yml"
   workflow_dispatch:
 
 permissions:
@@ -34,7 +31,7 @@ jobs:
           python - <<'PY'
           import json, os
           from pathlib import Path
-          token = os.environ.get("SUBMIT_PAT") or ""
+          token = (os.environ.get("SUBMIT_PAT") or "").strip()
           Path("docs/submit-config.js").write_text(
               "// auto-injected at deploy; visitors do not paste a token\n"
               "window.TWELVE_SUBMIT = {\n"
@@ -44,7 +41,13 @@ jobs:
               "};\n",
               encoding="utf-8",
           )
+          Path("docs/submit-status.json").write_text(
+              json.dumps({"syncEnabled": bool(token), "updatedAt": __import__("datetime").datetime.utcnow().isoformat() + "Z"}, indent=2) + "\n",
+              encoding="utf-8",
+          )
           print("token_injected=", bool(token))
+          if not token:
+              print("WARNING: SUBMIT_PAT secret is empty; multi-user auto-sync will not work until it is set.")
           PY
 
       - name: Setup Pages

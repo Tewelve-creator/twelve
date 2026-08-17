@@ -4,24 +4,22 @@
 
 在线地址：https://tewelve-creator.github.io/twelve/
 
-## 使用（访客无需填 Token）
+## 使用
 
-1. 打开网站，输入难词 → **AI 查找并录入**
-2. AI 自动补全表头字段并立刻显示在页面上
-3. 若维护者已配置 `SUBMIT_PAT`，会自动创建 GitHub Issue → Actions 合并进 Excel / `community-words.json`
-4. 其他人打开或刷新页面（约每 20 秒自动同步）即可看到新词
+1. 输入难词 → **AI 查找并录入**
+2. 若已开启多人同步：自动写入，其他人刷新可见
+3. 若未开启：会打开 GitHub 预填页，点一次 **Submit new issue** 后全员可见
 
-## 维护者：一次配置，实现多人自动同步
+## 开启「任何人添加，自动同步」（推荐做一次）
 
-仓库 Settings → Secrets and variables → Actions → New repository secret：
+你已配置 `SUBMIT_PAT` 的话，还差一步：**让网站用 Actions 发布**，否则线上 Token 一直是空的，别人加的词同步不了。
 
-| Name | Value |
-|------|--------|
-| `SUBMIT_PAT` | Fine-grained PAT，仅本仓库 **Issues: Read and write** |
+1. 打开：https://github.com/Tewelve-creator/twelve/settings/pages  
+2. **Build and deployment → Source** 选 **GitHub Actions**（不要选 “Deploy from a branch”）  
+3. 打开：https://github.com/Tewelve-creator/twelve/actions/workflows/pages.yml → **Run workflow**  
+4. 部署成功后，用无痕窗口打开站点试加一个词；不应再弹出 GitHub 提交页
 
-然后推送 `docs/` 或手动运行工作流 **Deploy GitHub Pages**。部署时会把 Token 写入线上站点配置（**不提交进 git**）。
-
-未配置时：仍可 AI 录入 + 邮件通知 `3437903275@qq.com`，但不会自动建 Issue，其他人暂时看不到。
+Secret 名必须是 `SUBMIT_PAT`：https://github.com/Tewelve-creator/twelve/settings/secrets/actions
 
 ## 本机合并到 Excel
 
@@ -34,5 +32,3 @@ python merge_words_to_excel.py
 ```bash
 python -m http.server 8877 --directory docs
 ```
-
-打开：http://127.0.0.1:8877/
