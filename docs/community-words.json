@@ -1,6 +1,24 @@
 {
-  "updatedAt": "2026-08-17T02:01:28.469Z",
+  "updatedAt": "2026-08-17T02:07:37.273Z",
   "words": [
+    {
+      "id": "gh_28",
+      "word": "super",
+      "cat": "社区·未分类",
+      "explain": "super：面试中需能解释其含义，并结合项目说明使用场景。",
+      "homo": "斯-乌-普-伊-尔",
+      "ipa": "",
+      "pron": "",
+      "tech": "通用",
+      "level": "了解",
+      "compare": "—",
+      "oneliner": "能说明 super 的含义，并举例它在项目中的用法。",
+      "trouble": [],
+      "issueNumber": 28,
+      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/28",
+      "createdAt": "2026-08-17T02:07:28Z",
+      "source": "community"
+    },
     {
       "id": "gh_27",
       "word": "static",
