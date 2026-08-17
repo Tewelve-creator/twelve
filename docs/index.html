@@ -197,10 +197,13 @@
     display:flex; align-items:center; justify-content:center;
     flex-shrink:0;
     padding:0;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
     transition: background .15s ease, transform .1s ease;
   }
   .speak-btn:hover{ background: var(--brand-dark); color:#f1ead9; }
   .speak-btn:active{ transform: scale(.92); }
+  .speak-btn.playing{ background: var(--brand-dark); color:#f1ead9; }
   .speak-btn svg{ width:12px; height:12px; }
   .phonetic{
     font-family:"IBM Plex Mono", monospace;
@@ -301,6 +304,8 @@
     .stats{ gap:18px; }
     .ai-sheet-head, .ai-sheet-body{ grid-template-columns:1fr 1fr; }
     .quick-add{ flex-direction:column; }
+    .speak-btn{ width: 40px; height: 40px; }
+    .speak-btn svg{ width:16px; height:16px; }
   }
 
 </style>
@@ -454,15 +459,86 @@
     document.getElementById("statTotal").textContent = DATA.length;
   }
 
-  function speak(word){
-    if(!('speechSynthesis' in window)) return;
+  var speakAudio = null;
+
+  function pickEnglishVoice(){
+    if(!("speechSynthesis" in window)) return null;
+    var voices = window.speechSynthesis.getVoices() || [];
+    for(var i = 0; i < voices.length; i++){
+      if(/^en(-|_)/i.test(voices[i].lang)) return voices[i];
+    }
+    for(var j = 0; j < voices.length; j++){
+      if(/english/i.test(voices[j].name)) return voices[j];
+    }
+    return null;
+  }
+
+  if("speechSynthesis" in window){
+    window.speechSynthesis.getVoices();
+    window.speechSynthesis.addEventListener("voiceschanged", function(){ pickEnglishVoice(); });
+  }
+
+  function speakWithAudio(word, btn){
+    try{
+      if(speakAudio){
+        speakAudio.pause();
+        speakAudio = null;
+      }
+      // 有道词典发音，手机浏览器更稳定
+      var url = "https://dict.youdao.com/dictvoice?type=2&audio=" + encodeURIComponent(word);
+      speakAudio = new Audio(url);
+      speakAudio.setAttribute("playsinline", "true");
+      speakAudio.preload = "auto";
+      if(btn) btn.classList.add("playing");
+      speakAudio.onended = speakAudio.onerror = function(){
+        if(btn) btn.classList.remove("playing");
+      };
+      var p = speakAudio.play();
+      if(p && typeof p.catch === "function"){
+        p.catch(function(){
+          if(btn) btn.classList.remove("playing");
+          speakWithSpeech(word, btn);
+        });
+      }
+    }catch(e){
+      if(btn) btn.classList.remove("playing");
+      speakWithSpeech(word, btn);
+    }
+  }
+
+  function speakWithSpeech(word, btn){
+    if(!("speechSynthesis" in window)) return;
     try{
       window.speechSynthesis.cancel();
       var u = new SpeechSynthesisUtterance(word);
       u.lang = "en-US";
       u.rate = 0.92;
+      var voice = pickEnglishVoice();
+      if(voice) u.voice = voice;
+      if(btn){
+        btn.classList.add("playing");
+        u.onend = u.onerror = function(){ btn.classList.remove("playing"); };
+      }
       window.speechSynthesis.speak(u);
-    }catch(e){}
+    }catch(e){
+      if(btn) btn.classList.remove("playing");
+    }
+  }
+
+  function speak(word, btn){
+    word = String(word || "").trim();
+    if(!word) return;
+    // 手机优先用音频文件，避免 Web Speech 在部分机型/微信内无效
+    var mobile = /Android|iPhone|iPad|iPod|Mobile|MicroMessenger/i.test(navigator.userAgent || "");
+    if(mobile) speakWithAudio(word, btn);
+    else {
+      speakWithSpeech(word, btn);
+      // 桌面语音失败时再走音频
+      setTimeout(function(){
+        if(!("speechSynthesis" in window) || window.speechSynthesis.speaking || window.speechSynthesis.pending) return;
+        speakWithAudio(word, btn);
+      }, 400);
+    }
   }
 
   function levelRank(l){ return l === "必问" ? 0 : l === "常问" ? 1 : 2; }
@@ -820,8 +896,9 @@
 
     Array.prototype.forEach.call(list.querySelectorAll(".speak-btn"), function(btn){
       btn.addEventListener("click", function(e){
+        e.preventDefault();
         e.stopPropagation();
-        speak(btn.getAttribute("data-word"));
+        speak(btn.getAttribute("data-word"), btn);
       });
     });
   }
