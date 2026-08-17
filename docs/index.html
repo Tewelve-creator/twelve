@@ -877,19 +877,39 @@
       document.getElementById("searchInput").value = word;
       render();
       if(sub.issueNumber){
-        setQuickMsg("添加成功：「" + word + "」已同步，3 秒后自动刷新…", false, true);
+        setQuickMsg("添加成功：「" + word + "」", false, true);
         showAddSuccessToast(word);
       } else if(sub.needsGithubClick){
         setQuickMsg("「" + word + "」已填好。请在新打开的 GitHub 页面点击绿色 Submit new issue（需登录），完成后所有人都能看到。", false, false);
       } else if(sub.emailed){
-        setQuickMsg("添加成功：「" + word + "」，3 秒后自动刷新…", false, true);
+        setQuickMsg("添加成功：「" + word + "」", false, true);
         showAddSuccessToast(word);
       } else {
-        setQuickMsg("添加成功：「" + word + "」，3 秒后自动刷新…", false, true);
+        setQuickMsg("添加成功：「" + word + "」", false, true);
         showAddSuccessToast(word);
       }
       if(!sub.needsGithubClick){
-        setTimeout(function(){ location.reload(); }, 3000);
+        try{
+          sessionStorage.setItem("twelve_just_added", JSON.stringify({
+            id: sub.issueNumber ? ("gh_" + sub.issueNumber) : ("u_" + Date.now()),
+            word: entry.word,
+            cat: entry.cat,
+            explain: entry.explain,
+            homo: entry.homo,
+            ipa: entry.ipa,
+            pron: entry.pron,
+            tech: entry.tech,
+            level: entry.level,
+            compare: entry.compare,
+            oneliner: entry.oneliner,
+            createdAt: entry.createdAt,
+            source: "community",
+            issueUrl: sub.issueUrl || null
+          }));
+        }catch(e){}
+        setTimeout(function(){
+          location.href = "./?added=" + encodeURIComponent(word) + "&_=" + Date.now();
+        }, 1000);
       } else {
         setTimeout(function(){ refreshCommunity(); }, 2500);
       }
@@ -1000,12 +1020,53 @@
     document.getElementById("statMust").textContent = DATA.filter(function(d){ return d.level === "必问"; }).length;
   }
 
+  function applyJustAdded(){
+    var params = new URLSearchParams(location.search);
+    var added = (params.get("added") || "").trim();
+    var pending = null;
+    try{
+      var raw = sessionStorage.getItem("twelve_just_added");
+      if(raw) pending = JSON.parse(raw);
+      sessionStorage.removeItem("twelve_just_added");
+    }catch(e){}
+    if(pending && pending.word){
+      var key = String(pending.word).toLowerCase();
+      var exists = COMMUNITY.some(function(w){ return String(w.word || "").toLowerCase() === key; });
+      if(!exists) COMMUNITY.unshift(pending);
+      // 同步写入本地缓存，避免随后 refresh 冲掉
+      try{ sessionStorage.setItem("twelve_last_added_word", pending.word); }catch(e){}
+      rebuildData();
+      refreshChips();
+      added = pending.word;
+    }
+    if(!added){
+      try{ added = sessionStorage.getItem("twelve_last_added_word") || ""; }catch(e){}
+    }
+    if(!added) return;
+    state.q = added;
+    document.getElementById("searchInput").value = added;
+    document.getElementById("quickWord").value = "";
+    render();
+    setQuickMsg("添加成功：「" + added + "」", false, true);
+    showAddSuccessToast(added);
+    try{
+      history.replaceState(null, "", "./");
+      sessionStorage.removeItem("twelve_last_added_word");
+    }catch(e){}
+    setTimeout(function(){
+      var list = document.getElementById("list");
+      if(list) list.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+  }
+
   fetch("./vocab-data.json").then(function(r){ return r.json(); }).then(function(json){
     BASE = json.rows.map(rowToObj);
     rebuildData();
     refreshChips();
     render();
-    refreshCommunity();
+    refreshCommunity().finally(function(){
+      applyJustAdded();
+    });
     communityTimer = setInterval(refreshCommunity, 20000);
   }).catch(function(err){
     document.getElementById("list").innerHTML = '<div class="empty">数据加载失败，请刷新重试。</div>';
