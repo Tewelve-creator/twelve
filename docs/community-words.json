@@ -1,6 +1,42 @@
 {
-  "updatedAt": "2026-08-17T01:26:07.809Z",
+  "updatedAt": "2026-08-17T01:26:55.816Z",
   "words": [
+    {
+      "id": "gh_23",
+      "word": "future",
+      "cat": "社区投稿",
+      "explain": "future：技术面试常见术语，建议结合项目场景理解。",
+      "homo": "弗-乌-特-乌-尔-诶",
+      "ipa": "",
+      "pron": "future",
+      "tech": "通用",
+      "level": "了解",
+      "compare": "—",
+      "oneliner": "一句话：future：技术面试常见术语，建议结合项目场景理解。",
+      "trouble": [],
+      "issueNumber": 23,
+      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/23",
+      "createdAt": "2026-08-17T01:26:45Z",
+      "source": "community"
+    },
+    {
+      "id": "gh_22",
+      "word": "for",
+      "cat": "社区投稿",
+      "explain": "for：技术面试常见术语，建议结合项目场景理解。",
+      "homo": "弗-尔",
+      "ipa": "",
+      "pron": "for",
+      "tech": "通用",
+      "level": "了解",
+      "compare": "—",
+      "oneliner": "一句话：for：技术面试常见术语，建议结合项目场景理解。",
+      "trouble": [],
+      "issueNumber": 22,
+      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/22",
+      "createdAt": "2026-08-17T01:26:06Z",
+      "source": "community"
+    },
     {
       "id": "gh_21",
       "word": "for",
