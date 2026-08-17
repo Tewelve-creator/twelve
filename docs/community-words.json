@@ -1,6 +1,24 @@
 {
-  "updatedAt": "2026-08-16T10:55:22.218Z",
+  "updatedAt": "2026-08-17T01:01:37.425Z",
   "words": [
+    {
+      "id": "gh_9",
+      "word": "black",
+      "cat": "社区投稿",
+      "explain": "（有时大写）非洲人、原住民或毛利人后裔；皮肤黝黑的人。",
+      "homo": "布-勒-克",
+      "ipa": "/blak/",
+      "pron": "black",
+      "tech": "通用",
+      "level": "了解",
+      "compare": "blackball / blacklist / blacken",
+      "oneliner": "一句话：（有时大写）非洲人、原住民或毛利人后裔；皮肤黝黑的人。",
+      "trouble": [],
+      "issueNumber": 9,
+      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/9",
+      "createdAt": "2026-08-17T01:01:26Z",
+      "source": "community"
+    },
     {
       "id": "gh_8",
       "word": "pink",
