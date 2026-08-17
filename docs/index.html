@@ -852,15 +852,19 @@
       document.getElementById("searchInput").value = word;
       render();
       if(sub.issueNumber){
-        setQuickMsg("「" + word + "」已同步。其他人刷新即可看到，随后会写入 Excel。", false);
+        setQuickMsg("「" + word + "」添加成功，3 秒后自动刷新…", false);
       } else if(sub.needsGithubClick){
         setQuickMsg("「" + word + "」已填好。请在新打开的 GitHub 页面点击绿色 Submit new issue（需登录），完成后所有人都能看到。", false);
       } else if(sub.emailed){
-        setQuickMsg("「" + word + "」已录入并邮件通知维护者。", false);
+        setQuickMsg("「" + word + "」添加成功，3 秒后自动刷新…", false);
       } else {
-        setQuickMsg("「" + word + "」已录入到本页。", false);
+        setQuickMsg("「" + word + "」添加成功，3 秒后自动刷新…", false);
       }
-      setTimeout(function(){ refreshCommunity(); }, 2500);
+      if(!sub.needsGithubClick){
+        setTimeout(function(){ location.reload(); }, 3000);
+      } else {
+        setTimeout(function(){ refreshCommunity(); }, 2500);
+      }
       document.getElementById("list").scrollIntoView({ behavior: "smooth", block: "start" });
     }catch(err){
       console.error(err);
