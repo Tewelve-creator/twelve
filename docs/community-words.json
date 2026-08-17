@@ -1,6 +1,24 @@
 {
-  "updatedAt": "2026-08-17T01:20:11.907Z",
+  "updatedAt": "2026-08-17T01:21:26.419Z",
   "words": [
+    {
+      "id": "gh_15",
+      "word": "add",
+      "cat": "社区投稿",
+      "explain": "添加的行为或实例。",
+      "homo": "阿-德",
+      "ipa": "/æd/",
+      "pron": "add",
+      "tech": "通用",
+      "level": "了解",
+      "compare": "coalesce / join / unite",
+      "oneliner": "一句话：添加的行为或实例。",
+      "trouble": [],
+      "issueNumber": 15,
+      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/15",
+      "createdAt": "2026-08-17T01:21:16Z",
+      "source": "community"
+    },
     {
       "id": "gh_14",
       "word": "add",
