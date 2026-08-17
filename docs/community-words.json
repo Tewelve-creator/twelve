@@ -1,6 +1,24 @@
 {
-  "updatedAt": "2026-08-17T01:28:38.605Z",
+  "updatedAt": "2026-08-17T01:31:20.154Z",
   "words": [
+    {
+      "id": "gh_25",
+      "word": "struggle",
+      "cat": "社区投稿",
+      "explain": "struggle：技术面试常见术语，建议结合项目场景理解。",
+      "homo": "斯-特-尔-乌-格-格-勒-诶",
+      "ipa": "",
+      "pron": "struggle",
+      "tech": "通用",
+      "level": "了解",
+      "compare": "—",
+      "oneliner": "一句话：struggle：技术面试常见术语，建议结合项目场景理解。",
+      "trouble": [],
+      "issueNumber": 25,
+      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/25",
+      "createdAt": "2026-08-17T01:31:11Z",
+      "source": "community"
+    },
     {
       "id": "gh_24",
       "word": "better",
