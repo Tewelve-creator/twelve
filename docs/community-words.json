@@ -1,6 +1,24 @@
 {
-  "updatedAt": "2026-08-17T02:29:32.953Z",
+  "updatedAt": "2026-08-17T02:30:13.217Z",
   "words": [
+    {
+      "id": "gh_31",
+      "word": "adminopen",
+      "cat": "社区·未分类",
+      "explain": "adminopen：面试中需能解释其含义，并结合项目说明使用场景。",
+      "homo": "阿-德-姆-伊-恩-欧-普-伊-恩",
+      "ipa": "/ædmɪnɒpen/",
+      "pron": "/ædmɪnɒpen/",
+      "tech": "通用",
+      "level": "了解",
+      "compare": "—",
+      "oneliner": "能说明 adminopen 的含义，并举例它在项目中的用法。",
+      "trouble": [],
+      "issueNumber": 31,
+      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/31",
+      "createdAt": "2026-08-17T02:30:02Z",
+      "source": "community"
+    },
     {
       "id": "gh_30",
       "word": "adminopen",
