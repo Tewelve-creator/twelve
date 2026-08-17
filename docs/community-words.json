@@ -1,6 +1,42 @@
 {
-  "updatedAt": "2026-08-17T01:21:47.036Z",
+  "updatedAt": "2026-08-17T01:22:16.745Z",
   "words": [
+    {
+      "id": "gh_18",
+      "word": "delete",
+      "cat": "社区投稿",
+      "explain": "delete：技术面试常见术语，建议结合项目场景理解。",
+      "homo": "德-诶-勒-诶-特-诶",
+      "ipa": "",
+      "pron": "delete",
+      "tech": "通用",
+      "level": "了解",
+      "compare": "—",
+      "oneliner": "一句话：delete：技术面试常见术语，建议结合项目场景理解。",
+      "trouble": [],
+      "issueNumber": 18,
+      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/18",
+      "createdAt": "2026-08-17T01:22:08Z",
+      "source": "community"
+    },
+    {
+      "id": "gh_17",
+      "word": "idemmode",
+      "cat": "社区投稿",
+      "explain": "idemmode：技术面试常见术语，建议结合项目场景理解。",
+      "homo": "伊-德-诶-姆-姆-德-诶",
+      "ipa": "",
+      "pron": "idemmode",
+      "tech": "通用",
+      "level": "了解",
+      "compare": "—",
+      "oneliner": "一句话：idemmode：技术面试常见术语，建议结合项目场景理解。",
+      "trouble": [],
+      "issueNumber": 17,
+      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/17",
+      "createdAt": "2026-08-17T01:22:07Z",
+      "source": "community"
+    },
     {
       "id": "gh_16",
       "word": "idemmode",
