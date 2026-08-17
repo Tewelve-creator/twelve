@@ -1,6 +1,24 @@
 {
-  "updatedAt": "2026-08-17T01:31:20.154Z",
+  "updatedAt": "2026-08-17T01:46:20.423Z",
   "words": [
+    {
+      "id": "gh_26",
+      "word": "boolean",
+      "cat": "未分类",
+      "explain": "boolean：面试中需能解释其含义，并结合项目说明使用场景。",
+      "homo": "布-勒-诶-恩",
+      "ipa": "",
+      "pron": "boolean",
+      "tech": "通用",
+      "level": "了解",
+      "compare": "—",
+      "oneliner": "能说明 boolean 的含义，并举例它在项目中的用法。",
+      "trouble": [],
+      "issueNumber": 26,
+      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/26",
+      "createdAt": "2026-08-17T01:46:09Z",
+      "source": "community"
+    },
     {
       "id": "gh_25",
       "word": "struggle",
