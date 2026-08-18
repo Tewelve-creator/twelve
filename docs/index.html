@@ -460,8 +460,8 @@
 </div>
 
 <footer>
-  <span>数据来源：面试常用单词整理表 · 支持用户添加并同步 Excel</span>
-  <a class="dl" href="./interview-vocab.xlsx" download>下载完整 Excel 表格</a>
+  <span>数据来源：合并后的面试词汇表（约 546 条）· 支持分类阅读与社区添加</span>
+  <a class="dl" href="./interview-vocab.xlsx" download="面试词汇合并表.xlsx">下载合并 Excel 表格</a>
 </footer>
 
 <div class="toast-success" id="toastSuccess" role="status" aria-live="polite">添加成功</div>
@@ -1597,7 +1597,7 @@
     }, 100);
   }
 
-  fetch("./vocab-data.json").then(function(r){ return r.json(); }).then(function(json){
+  fetch("./vocab-data.json?v=" + Date.now()).then(function(r){ return r.json(); }).then(function(json){
     BASE = json.rows.map(rowToObj);
     rebuildData();
     refreshChips();
