@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-18T00:30:30.577Z",
+  "updatedAt": "2026-08-18T01:56:15.180Z",
   "words": [
     {
       "id": "gh_32",
@@ -485,24 +485,6 @@
       "issueNumber": 6,
       "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/6",
       "createdAt": "2026-08-16T10:52:55Z",
-      "source": "community"
-    },
-    {
-      "id": "gh_5",
-      "word": "apple",
-      "cat": "社区投稿",
-      "explain": "一种常见的圆形果实，由Malus domestica树生产，在温和的气候下种植。",
-      "homo": "阿-普-呃-勒",
-      "ipa": "/ˈæp.əl/",
-      "pron": "apple",
-      "tech": "通用",
-      "level": "了解",
-      "compare": "—",
-      "oneliner": "一句话：一种常见的圆形果实，由Malus domestica树生产，在温和的气候下种植。",
-      "trouble": [],
-      "issueNumber": 5,
-      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/5",
-      "createdAt": "2026-08-16T10:52:33Z",
       "source": "community"
     }
   ]
