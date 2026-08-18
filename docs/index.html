@@ -1046,7 +1046,54 @@
       });
     }
     if(!found.length) found = ["通用"];
-    return found.slice(0, 4);
+    var seen = {}, out = [];
+    found.forEach(function(t){
+      var g = collapseTechTag(t);
+      if(g && !seen[g]){ seen[g] = 1; out.push(g); }
+    });
+    return out.slice(0, 3);
+  }
+
+  function collapseTechTag(tag){
+    var s = String(tag || "").trim();
+    if(!s) return "";
+    var low = s.toLowerCase();
+    var exact = {
+      "前端":"前端","js":"前端","javascript":"前端","typescript":"前端","react":"前端","vue":"前端","angular":"前端",
+      "java":"Java","jvm":"Java","spring":"Java","spring boot":"Java","springboot":"Java","spring mvc":"Java","juc":"Java","jmm":"Java","tomcat":"Java",
+      "python":"Python","asyncio":"Python","pydantic":"Python","uvicorn":"Python","django":"Python","flask":"Python","pandas":"Python","numpy":"Python","celery":"Python",
+      "fastapi":"FastAPI","starlette":"FastAPI",
+      "ai":"AI","llm":"AI","gpt":"AI","claude":"AI","openai":"AI","prompt":"AI","embedding":"AI","lora":"AI","peft":"AI","vllm":"AI","pytorch":"AI","训练":"AI","评测":"AI","qwen":"AI","token":"AI","模型":"AI",
+      "rag":"RAG","langchain":"RAG","langgraph":"RAG","milvus":"RAG","faiss":"RAG","向量库":"RAG","opensearch":"RAG",
+      "transformer":"AI/视觉","bert":"AI/视觉","vit":"AI/视觉","cnn":"AI/视觉","resnet":"AI/视觉","opencv":"AI/视觉","视觉":"AI/视觉","yolo":"AI/视觉","检测分割":"AI/视觉",
+      "docker":"运维","k8s":"运维","kubernetes":"运维","nginx":"运维","ci":"运维","cd":"运维","发布运维":"运维","harbor":"运维",
+      "redis":"数据库","mysql":"数据库","db":"数据库","innodb":"数据库","缓存":"数据库","数据库":"数据库","postgres":"数据库","mongodb":"数据库","sql":"数据库",
+      "网络":"网络","http":"网络","网关":"网络","tcp":"网络","udp":"网络","websocket":"网络","dns":"网络","socket":"网络",
+      "安全":"安全","jwt":"安全","oauth2":"安全","oauth":"安全","sso":"安全","csrf":"安全","xss":"安全",
+      "微服务":"架构","sentinel":"架构","seata":"架构","mq":"架构","架构":"架构","etl":"架构","kafka":"架构","后端":"架构",
+      "ai工具":"AI工具","claude code":"AI工具","codex":"AI工具","cursor":"AI工具","mcp":"AI工具","opencode":"AI工具","copilot":"AI工具",
+      "agent":"Agent","编排":"Agent","任务":"Agent",
+      "oop":"基础","数据结构":"基础","操作系统":"基础","算法":"基础",
+      "通用":"通用","用户投稿":"通用"
+    };
+    if(exact[s]) return exact[s];
+    if(exact[low]) return exact[low];
+    if(/react|vue|angular|前端|javascript|typescript|^js$|dom|css|html|jsx|webpack/i.test(s)) return "前端";
+    if(/spring|jvm|\bjava\b|juc|jmm|tomcat|hibernate|mybatis/i.test(s)) return "Java";
+    if(/fastapi|uvicorn|starlette|pydantic/i.test(s)) return "FastAPI";
+    if(/python|asyncio|django|flask|pandas|numpy|celery|\bgil\b/i.test(s)) return "Python";
+    if(/rag|langchain|langgraph|milvus|faiss|向量|embedding|retriev/i.test(s)) return "RAG";
+    if(/opencv|视觉|cnn|yolo|transformer|bert|\bvit\b|resnet|检测/i.test(s)) return "AI/视觉";
+    if(/claude code|codex|cursor|mcp|copilot|ai工具|opencode/i.test(s)) return "AI工具";
+    if(/\bagent\b|编排/i.test(s)) return "Agent";
+    if(/docker|k8s|kubernetes|nginx|devops|运维|harbor|\bci\b|\bcd\b/i.test(s)) return "运维";
+    if(/redis|mysql|postgres|mongo|innodb|数据库|缓存|\bdb\b|\bsql\b/i.test(s)) return "数据库";
+    if(/jwt|oauth|sso|csrf|xss|安全|auth/i.test(s)) return "安全";
+    if(/http|tcp|udp|socket|websocket|网关|网络|dns/i.test(s)) return "网络";
+    if(/微服务|sentinel|seata|\bmq\b|kafka|架构|gateway|后端/i.test(s)) return "架构";
+    if(/llm|gpt|claude|openai|prompt|lora|peft|vllm|pytorch|token|模型|\bai\b/i.test(s)) return "AI";
+    if(/oop|数据结构|操作系统|算法/i.test(s)) return "基础";
+    return "其他";
   }
 
   function formatTechs(techs){
@@ -1055,12 +1102,19 @@
   }
 
   function splitTechs(tech){
-    return String(tech || "").split(/[\/|,，、]/).map(function(s){ return s.trim(); }).filter(Boolean);
+    var raw = String(tech || "").split(/[\/|,，、]/).map(function(s){ return s.trim(); }).filter(Boolean);
+    if(!raw.length && String(tech || "").trim()) raw = [String(tech).trim()];
+    var seen = {}, out = [];
+    raw.forEach(function(t){
+      var g = collapseTechTag(t);
+      if(g && !seen[g]){ seen[g] = 1; out.push(g); }
+    });
+    return out.length ? out : ["通用"];
   }
 
   function techMatches(cardTech, selected){
     if(!selected) return true;
-    return splitTechs(cardTech).indexOf(selected) >= 0 || String(cardTech) === selected;
+    return splitTechs(cardTech).indexOf(selected) >= 0 || collapseTechTag(cardTech) === selected;
   }
 
   function communityCat(cat, techs){
@@ -1550,11 +1604,12 @@
   function refreshChips(){
     if(!DATA.length) return;
     var levels = count(DATA, "level").sort(function(a,b){ return levelRank(a.key) - levelRank(b.key); });
-    var techs = count(DATA, "tech").sort(function(a,b){ return b.count - a.count; });
+    var allTechs = count(DATA, "tech").sort(function(a,b){ return b.count - a.count; });
+    var techs = allTechs.slice(0, 14);
     buildChips("levelChips", levels, "level");
     buildChips("techChips", techs, "tech");
     refreshCatSelect();
-    document.getElementById("statTech").textContent = techs.length;
+    document.getElementById("statTech").textContent = allTechs.length;
     document.getElementById("statMust").textContent = DATA.filter(function(d){ return d.level === "必问" || d.level === "核心"; }).length;
   }
 
