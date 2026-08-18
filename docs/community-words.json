@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-18T01:56:29.557Z",
+  "updatedAt": "2026-08-18T02:06:40.815Z",
   "words": [
     {
       "id": "gh_31",
@@ -17,42 +17,6 @@
       "issueNumber": 31,
       "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/31",
       "createdAt": "2026-08-17T02:30:02Z",
-      "source": "community"
-    },
-    {
-      "id": "gh_26",
-      "word": "boolean",
-      "cat": "未分类",
-      "explain": "boolean：面试中需能解释其含义，并结合项目说明使用场景。",
-      "homo": "布-勒-诶-恩",
-      "ipa": "",
-      "pron": "boolean",
-      "tech": "通用",
-      "level": "了解",
-      "compare": "—",
-      "oneliner": "能说明 boolean 的含义，并举例它在项目中的用法。",
-      "trouble": [],
-      "issueNumber": 26,
-      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/26",
-      "createdAt": "2026-08-17T01:46:09Z",
-      "source": "community"
-    },
-    {
-      "id": "gh_25",
-      "word": "struggle",
-      "cat": "社区投稿",
-      "explain": "struggle：技术面试常见术语，建议结合项目场景理解。",
-      "homo": "斯-特-尔-乌-格-格-勒-诶",
-      "ipa": "",
-      "pron": "struggle",
-      "tech": "通用",
-      "level": "了解",
-      "compare": "—",
-      "oneliner": "一句话：struggle：技术面试常见术语，建议结合项目场景理解。",
-      "trouble": [],
-      "issueNumber": 25,
-      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/25",
-      "createdAt": "2026-08-17T01:31:11Z",
       "source": "community"
     },
     {
