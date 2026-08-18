@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-18T02:06:54.218Z",
+  "updatedAt": "2026-08-18T02:07:06.173Z",
   "words": [
     {
       "id": "gh_31",
@@ -56,24 +56,6 @@
       "source": "community"
     },
     {
-      "id": "gh_18",
-      "word": "delete",
-      "cat": "社区投稿",
-      "explain": "delete：技术面试常见术语，建议结合项目场景理解。",
-      "homo": "德-诶-勒-诶-特-诶",
-      "ipa": "",
-      "pron": "delete",
-      "tech": "通用",
-      "level": "了解",
-      "compare": "—",
-      "oneliner": "一句话：delete：技术面试常见术语，建议结合项目场景理解。",
-      "trouble": [],
-      "issueNumber": 18,
-      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/18",
-      "createdAt": "2026-08-17T01:22:08Z",
-      "source": "community"
-    },
-    {
       "id": "gh_17",
       "word": "idemmode",
       "cat": "社区投稿",
@@ -92,24 +74,6 @@
       "source": "community"
     },
     {
-      "id": "gh_16",
-      "word": "idemmode",
-      "cat": "社区投稿",
-      "explain": "idemmode：技术面试常见术语，建议结合项目场景理解。",
-      "homo": "伊-德-诶-姆-姆-德-诶",
-      "ipa": "",
-      "pron": "idemmode",
-      "tech": "通用",
-      "level": "了解",
-      "compare": "—",
-      "oneliner": "一句话：idemmode：技术面试常见术语，建议结合项目场景理解。",
-      "trouble": [],
-      "issueNumber": 16,
-      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/16",
-      "createdAt": "2026-08-17T01:21:38Z",
-      "source": "community"
-    },
-    {
       "id": "gh_15",
       "word": "add",
       "cat": "社区投稿",
@@ -125,24 +89,6 @@
       "issueNumber": 15,
       "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/15",
       "createdAt": "2026-08-17T01:21:16Z",
-      "source": "community"
-    },
-    {
-      "id": "gh_14",
-      "word": "add",
-      "cat": "社区投稿",
-      "explain": "添加的行为或实例。",
-      "homo": "阿-德",
-      "ipa": "/æd/",
-      "pron": "add",
-      "tech": "通用",
-      "level": "了解",
-      "compare": "coalesce / join / unite",
-      "oneliner": "一句话：添加的行为或实例。",
-      "trouble": [],
-      "issueNumber": 14,
-      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/14",
-      "createdAt": "2026-08-17T01:20:00Z",
       "source": "community"
     },
     {
@@ -197,24 +143,6 @@
       "issueNumber": 11,
       "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/11",
       "createdAt": "2026-08-17T01:02:17Z",
-      "source": "community"
-    },
-    {
-      "id": "gh_10",
-      "word": "IS",
-      "cat": "社区投稿",
-      "explain": "IS：技术面试常见术语，建议结合项目场景理解。",
-      "homo": "伊-斯",
-      "ipa": "",
-      "pron": "IS",
-      "tech": "通用",
-      "level": "了解",
-      "compare": "—",
-      "oneliner": "一句话：IS：技术面试常见术语，建议结合项目场景理解。",
-      "trouble": [],
-      "issueNumber": 10,
-      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/10",
-      "createdAt": "2026-08-17T01:02:06Z",
       "source": "community"
     },
     {
