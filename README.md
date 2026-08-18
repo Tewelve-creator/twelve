@@ -18,6 +18,14 @@
 python import_classified_vocab.py
 ```
 
+两份 Excel 完整合并（全部汇总去重 + 双方工作表）：
+
+```bash
+python merge_two_excels.py
+```
+
+合并结果：仓库内 `面试常用单词_Java_Python_FastAPI_LangChain.xlsx`，桌面另存 `面试词汇合并表_AI_Java.xlsx`。
+
 ## 开启「任何人添加，自动同步」（推荐做一次）
 
 你已配置 `SUBMIT_PAT` 的话，还差一步：**让网站用 Actions 发布**，否则线上 Token 一直是空的，别人加的词同步不了。
