@@ -156,32 +156,6 @@
   .chip.level-常问.active{ background: var(--tag-b); border-color: var(--tag-b); }
   .chip.level-了解.active{ background: var(--tag-c); border-color: var(--tag-c); }
   .chip .n{ opacity:.65; font-family:"IBM Plex Mono",monospace; font-size:.72em; margin-left:4px; }
-  .cat-select-row{
-    display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:2px;
-  }
-  .cat-select-row .label{
-    font-family:"IBM Plex Mono", monospace;
-    font-size: .68rem;
-    color: var(--ink-faint);
-    letter-spacing:.06em;
-    min-width: 58px;
-  }
-  #catSelect{
-    font: inherit;
-    font-size: .88rem;
-    min-width: min(420px, 100%);
-    max-width: 100%;
-    padding: 8px 12px;
-    border-radius: 10px;
-    border: 1px solid var(--line);
-    background: #fff;
-    color: var(--ink);
-    cursor: pointer;
-  }
-  #catSelect:focus{
-    outline: 2px solid var(--brand);
-    outline-offset: 1px;
-  }
 
   .result-bar{
     display:flex; justify-content:space-between; align-items:baseline;
@@ -432,12 +406,6 @@
         <div class="label">技术栈</div>
         <div class="chips" id="techChips"></div>
       </div>
-      <div class="cat-select-row">
-        <div class="label">分类</div>
-        <select id="catSelect" aria-label="按分类阅读单词">
-          <option value="">全部分类</option>
-        </select>
-      </div>
       <div class="chip-group">
         <div class="label">来源</div>
         <div class="chips" id="sourceChips">
@@ -471,7 +439,7 @@
 (function(){
   var ISSUE_REPO = (window.TWELVE_SUBMIT && window.TWELVE_SUBMIT.issueRepo) || "Tewelve-creator/twelve";
   var FORM_EMAIL = (window.TWELVE_SUBMIT && window.TWELVE_SUBMIT.formEmail) || "";
-  var state = { q: "", level: null, tech: null, cat: null, source: null };
+  var state = { q: "", level: null, tech: null, source: null };
   var BASE = [];
   var COMMUNITY = [];
   var DATA = [];
@@ -1479,7 +1447,6 @@
       if(state.source === "community" && d.source !== "community") return false;
       if(state.level && d.level !== state.level) return false;
       if(state.tech && !techMatches(d.tech, state.tech)) return false;
-      if(state.cat && d.cat !== state.cat) return false;
       if(q){
         var hay = (d.word + " " + d.explain + " " + d.homo + " " + d.oneliner + " " + d.compare).toLowerCase();
         if(hay.indexOf(q) === -1) return false;
@@ -1577,30 +1544,6 @@
     return Object.keys(m).map(function(k){ return { key: k, count: m[k] }; });
   }
 
-  function refreshCatSelect(){
-    var sel = document.getElementById("catSelect");
-    if(!sel) return;
-    var prev = state.cat || "";
-    var cats = {};
-    DATA.forEach(function(d){
-      var c = String(d.cat || "").trim();
-      if(!c) return;
-      cats[c] = (cats[c] || 0) + 1;
-    });
-    var keys = Object.keys(cats).sort(function(a,b){
-      return a.localeCompare(b, "zh");
-    });
-    sel.innerHTML = '<option value="">全部分类（' + DATA.length + '）</option>' +
-      keys.map(function(k){
-        return '<option value="' + escapeHtml(k) + '">' + escapeHtml(k) + '（' + cats[k] + '）</option>';
-      }).join("");
-    sel.value = prev;
-    if(sel.value !== prev){
-      state.cat = null;
-      sel.value = "";
-    }
-  }
-
   function refreshChips(){
     if(!DATA.length) return;
     var levels = count(DATA, "level").sort(function(a,b){ return levelRank(a.key) - levelRank(b.key); });
@@ -1608,7 +1551,6 @@
     var techs = allTechs.slice(0, 14);
     buildChips("levelChips", levels, "level");
     buildChips("techChips", techs, "tech");
-    refreshCatSelect();
     document.getElementById("statTech").textContent = allTechs.length;
     document.getElementById("statMust").textContent = DATA.filter(function(d){ return d.level === "必问" || d.level === "核心"; }).length;
   }
@@ -1671,19 +1613,10 @@
     render();
   });
   document.getElementById("resetBtn").addEventListener("click", function(){
-    state = { q: "", level: null, tech: null, cat: null, source: null };
+    state = { q: "", level: null, tech: null, source: null };
     document.getElementById("searchInput").value = "";
-    var catSel = document.getElementById("catSelect");
-    if(catSel) catSel.value = "";
     Array.prototype.forEach.call(document.querySelectorAll(".chip"), function(c){ c.classList.remove("active"); });
     render();
-  });
-  document.getElementById("catSelect").addEventListener("change", function(){
-    state.cat = this.value || null;
-    render();
-    if(state.cat){
-      document.getElementById("list").scrollIntoView({ behavior: "smooth", block: "start" });
-    }
   });
   document.getElementById("sourceChips").addEventListener("click", function(e){
     var chip = e.target.closest(".chip");
