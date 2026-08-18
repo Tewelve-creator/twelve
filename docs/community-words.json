@@ -1,6 +1,24 @@
 {
-  "updatedAt": "2026-08-17T02:30:13.217Z",
+  "updatedAt": "2026-08-18T00:30:30.577Z",
   "words": [
+    {
+      "id": "gh_32",
+      "word": "red",
+      "cat": "社区·RAG · AI",
+      "explain": "革命社会主义者或（最常见的）共产主义者； （通常大写）布尔什维克，俄国内战中布尔什维克的支持者。",
+      "homo": "诶-德",
+      "ipa": "/ɹɛd/",
+      "pron": "/ɹɛd/",
+      "tech": "AI",
+      "level": "了解",
+      "compare": "blood / brick / cardinal",
+      "oneliner": "革命社会主义者或（最常见的）共产主义者。",
+      "trouble": [],
+      "issueNumber": 32,
+      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/32",
+      "createdAt": "2026-08-18T00:30:18Z",
+      "source": "community"
+    },
     {
       "id": "gh_31",
       "word": "adminopen",
