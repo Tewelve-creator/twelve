@@ -322,6 +322,14 @@
   .hero-actions{ display:flex; gap:8px; flex-wrap:wrap; margin:0 0 18px; }
   .user-badge{ font-size:.68rem; padding:3px 8px; border-radius:999px; background:#e4ece9; color:var(--brand-dark); font-weight:600; }
   .card.user-card{ border-style:dashed; }
+  .card.user-card .delete-btn{
+    opacity:0; visibility:hidden;
+    transition:opacity .15s ease, visibility .15s ease;
+  }
+  .card.user-card:hover .delete-btn,
+  .card.user-card:focus-within .delete-btn{
+    opacity:1; visibility:visible;
+  }
   .delete-btn{
     font:inherit; font-size:.72rem; padding:4px 10px; border-radius:999px;
     border:1px solid #d4a5a5; background:#faf0f0; color:var(--tag-a); cursor:pointer;
@@ -329,6 +337,9 @@
   }
   .delete-btn:hover{ background:#f3ddd2; border-color:var(--tag-a); }
   .delete-btn:disabled{ opacity:.55; cursor:wait; }
+  @media (hover: none){
+    .card.user-card .delete-btn{ opacity:1; visibility:visible; }
+  }
   .modal-backdrop{ position:fixed; inset:0; background:rgba(42,37,29,.42); display:none; align-items:center; justify-content:center; padding:20px; z-index:1000; }
   .modal-backdrop.open{ display:flex; }
   .modal{ width:min(480px,100%); background:var(--paper-raised); border:1px solid var(--line); border-radius:16px; padding:20px; }
