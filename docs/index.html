@@ -322,6 +322,13 @@
   .hero-actions{ display:flex; gap:8px; flex-wrap:wrap; margin:0 0 18px; }
   .user-badge{ font-size:.68rem; padding:3px 8px; border-radius:999px; background:#e4ece9; color:var(--brand-dark); font-weight:600; }
   .card.user-card{ border-style:dashed; }
+  .delete-btn{
+    font:inherit; font-size:.72rem; padding:4px 10px; border-radius:999px;
+    border:1px solid #d4a5a5; background:#faf0f0; color:var(--tag-a); cursor:pointer;
+    margin-top:4px; -webkit-tap-highlight-color:transparent;
+  }
+  .delete-btn:hover{ background:#f3ddd2; border-color:var(--tag-a); }
+  .delete-btn:disabled{ opacity:.55; cursor:wait; }
   .modal-backdrop{ position:fixed; inset:0; background:rgba(42,37,29,.42); display:none; align-items:center; justify-content:center; padding:20px; z-index:1000; }
   .modal-backdrop.open{ display:flex; }
   .modal{ width:min(480px,100%); background:var(--paper-raised); border:1px solid var(--line); border-radius:16px; padding:20px; }
@@ -473,6 +480,11 @@
   function communityToCard(c){
     var techs = splitTechs(c.tech || "通用");
     if(!techs.length) techs = ["通用"];
+    var issueNum = c.issueNumber || null;
+    if(!issueNum){
+      var m = String(c.id || "").match(/^gh_(\d+)$/);
+      if(m) issueNum = parseInt(m[1], 10);
+    }
     return {
       cat: communityCat(c.cat || "未分类", techs),
       word: c.word,
@@ -486,7 +498,9 @@
       compare: c.compare || "—",
       oneliner: c.oneliner || "",
       source: "community",
-      id: c.id || null
+      id: c.id || null,
+      issueNumber: issueNum,
+      issueUrl: c.issueUrl || null
     };
   }
 
@@ -1187,8 +1201,69 @@
       oneliner: pickIssueField(body, "一句话回答") || "",
       trouble: troubleRaw ? troubleRaw.split(/[、,，]/).map(function(s){ return s.trim(); }).filter(Boolean) : [],
       createdAt: issue.created_at,
+      issueNumber: issue.number,
       issueUrl: issue.html_url
     };
+  }
+
+  var DELETED_KEY = "twelve_deleted_words";
+
+  function getDeletedSet(){
+    try{
+      return new Set(JSON.parse(localStorage.getItem(DELETED_KEY) || "[]"));
+    }catch(e){ return new Set(); }
+  }
+
+  function markDeleted(word, id){
+    var set = getDeletedSet();
+    var key = String(word || "").trim().toLowerCase();
+    if(key) set.add(key);
+    if(id) set.add(String(id));
+    try{ localStorage.setItem(DELETED_KEY, JSON.stringify(Array.from(set))); }catch(e){}
+  }
+
+  function isDeletedEntry(w){
+    if(!w) return false;
+    var set = getDeletedSet();
+    var key = String(w.word || "").trim().toLowerCase();
+    return (key && set.has(key)) || (w.id && set.has(String(w.id)));
+  }
+
+  async function deleteCommunityWord(word, id, issueNumber){
+    if(!confirm("确定删除「" + word + "」？删除后其他人刷新也将不再看到。")) return;
+    var token = getSubmitToken();
+    if(issueNumber && token){
+      try{
+        var res = await fetch("https://api.github.com/repos/" + ISSUE_REPO + "/issues/" + issueNumber, {
+          method: "PATCH",
+          headers: {
+            Authorization: "Bearer " + token,
+            Accept: "application/vnd.github+json",
+            "Content-Type": "application/json",
+            "X-GitHub-Api-Version": "2022-11-28"
+          },
+          body: JSON.stringify({ state: "closed" })
+        });
+        var data = await res.json().catch(function(){ return {}; });
+        if(!res.ok) throw new Error(data.message || ("GitHub " + res.status));
+      }catch(err){
+        setQuickMsg(err.message || "删除失败", true);
+        return;
+      }
+    } else if(issueNumber && !token){
+      if(!confirm("当前无法同步到 GitHub，仅从本页移除。确定继续？")) return;
+    }
+    markDeleted(word, id);
+    COMMUNITY = COMMUNITY.filter(function(w){
+      var sameWord = String(w.word || "").trim().toLowerCase() === String(word).trim().toLowerCase();
+      var sameId = id && String(w.id || "") === String(id);
+      return !sameWord && !sameId;
+    });
+    rebuildData();
+    refreshChips();
+    render();
+    setQuickMsg("已删除「" + word + "」" + (issueNumber && token ? "，正在同步到 Excel…" : issueNumber ? "（仅本页，未同步 GitHub）" : "。"), false, true);
+    setTimeout(function(){ refreshCommunity(); }, 2500);
   }
 
   async function refreshCommunity(){
@@ -1211,7 +1286,7 @@
     }catch(e){}
     var map = {};
     fromFile.concat(fromIssues).forEach(function(w){
-      if(!w || !w.word) return;
+      if(!w || !w.word || isDeletedEntry(w)) return;
       var key = String(w.word).toLowerCase();
       if(!map[key] || String(w.id || "").indexOf("gh_") === 0) map[key] = w;
     });
@@ -1496,6 +1571,7 @@
           '<div class="meta-col">' +
             '<span class="level-badge ' + escapeHtml(d.level) + '">' + escapeHtml(d.level) + '</span>' +
             '<div class="tech-badges">' + splitTechs(d.tech).map(function(x){ return '<span class="tech-badge">' + escapeHtml(x) + '</span>'; }).join("") + '</div>' +
+            (d.source === "community" ? '<button type="button" class="delete-btn" data-word="' + escapeHtml(d.word) + '" data-id="' + escapeHtml(d.id || "") + '" data-issue="' + (d.issueNumber || "") + '" title="删除此词条">删除</button>' : '') +
           '</div>' +
         '</div>'
       );
@@ -1506,6 +1582,19 @@
         e.preventDefault();
         e.stopPropagation();
         speak(btn.getAttribute("data-word"), btn);
+      });
+    });
+    Array.prototype.forEach.call(list.querySelectorAll(".delete-btn"), function(btn){
+      btn.addEventListener("click", function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        var issueRaw = btn.getAttribute("data-issue");
+        var issueNum = issueRaw ? parseInt(issueRaw, 10) : null;
+        if(issueNum && isNaN(issueNum)) issueNum = null;
+        btn.disabled = true;
+        deleteCommunityWord(btn.getAttribute("data-word"), btn.getAttribute("data-id"), issueNum).finally(function(){
+          btn.disabled = false;
+        });
       });
     });
   }
