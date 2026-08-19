@@ -1,6 +1,24 @@
 {
-  "updatedAt": "2026-08-18T02:07:17.016Z",
+  "updatedAt": "2026-08-19T01:16:09.612Z",
   "words": [
+    {
+      "id": "gh_33",
+      "word": "checkpointer",
+      "cat": "社区·深度学习 · AI / 其他",
+      "explain": "checkpointer：面试中需能解释其含义，并结合项目说明使用场景。",
+      "homo": "克-赫-伊-克-克-普-欧-因特",
+      "ipa": "/tʃekpɒɪntə/",
+      "pron": "/tʃekpɒɪntə/",
+      "tech": "AI / 其他",
+      "level": "常问",
+      "compare": "—",
+      "oneliner": "能说明 checkpointer 的含义，并举例它在项目中的用法。",
+      "trouble": [],
+      "issueNumber": 33,
+      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/33",
+      "createdAt": "2026-08-19T01:15:58Z",
+      "source": "community"
+    },
     {
       "id": "gh_31",
       "word": "adminopen",
