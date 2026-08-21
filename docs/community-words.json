@@ -1,10 +1,8 @@
 {
-  "updatedAt": "2026-08-21T00:57:19.779Z",
+  "updatedAt": "2026-08-21T01:03:22.434885Z",
   "words": [
     {
-      "id": "gh_37",
       "word": "prompt",
-      "cat": "社区·基础 · AI",
       "explain": "提示词，引导模型输出",
       "homo": "普-罗姆普特",
       "ipa": "/prɒmpt/",
@@ -14,33 +12,23 @@
       "compare": "System / Few-shot",
       "oneliner": "引导模型输出的指令和上下文。",
       "trouble": [],
-      "issueNumber": 37,
-      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/37",
-      "createdAt": "2026-08-21T00:57:10Z",
-      "source": "community"
+      "cat": "社区·基础 · AI"
     },
     {
-      "id": "gh_36",
       "word": "example",
-      "cat": "社区·未分类",
       "explain": "平行或非常相似的案例，特别是作为先例或模型时。",
       "homo": "伊-格-兹-阿-姆-普-勒",
-      "ipa": "英 /ɪɡˈzɑːmp(ə)l/  美 /ɪɡˈzæmp(ə)l/",
-      "pron": "英 /ɪɡˈzɑːmp(ə)l/  美 /ɪɡˈzæmp(ə)l/",
+      "ipa": "/ɪɡˈzɑːmpl̩/",
+      "pron": "/ɪɡˈzɑːmpl̩/",
       "tech": "通用",
       "level": "了解",
       "compare": "—",
       "oneliner": "平行或非常相似的案例，特别是作为先例或模型时。",
       "trouble": [],
-      "issueNumber": 36,
-      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/36",
-      "createdAt": "2026-08-21T00:44:37Z",
-      "source": "community"
+      "cat": "社区·未分类"
     },
     {
-      "id": "gh_35",
       "word": "idepment",
-      "cat": "社区·未分类",
       "explain": "idepment：面试中需能解释其含义，并结合项目说明使用场景。",
       "homo": "伊-德-伊-普-门特",
       "ipa": "/ɪdepmənt/",
@@ -50,33 +38,10 @@
       "compare": "—",
       "oneliner": "能说明 idepment 的含义，并举例它在项目中的用法。",
       "trouble": [],
-      "issueNumber": 35,
-      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/35",
-      "createdAt": "2026-08-21T00:37:20Z",
-      "source": "community"
+      "cat": "社区·未分类"
     },
     {
-      "id": "gh_34",
-      "word": "example",
-      "cat": "社区·未分类",
-      "explain": "example：面试中需能解释其含义，并结合项目说明使用场景。",
-      "homo": "伊-克斯-阿-姆-普-勒-伊",
-      "ipa": "英 /ɪɡˈzɑːmp(ə)l/  美 /ɪɡˈzæmp(ə)l/",
-      "pron": "英 /ɪɡˈzɑːmp(ə)l/  美 /ɪɡˈzæmp(ə)l/",
-      "tech": "通用",
-      "level": "了解",
-      "compare": "—",
-      "oneliner": "能说明 example 的含义，并举例它在项目中的用法。",
-      "trouble": [],
-      "issueNumber": 34,
-      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/34",
-      "createdAt": "2026-08-21T00:21:10Z",
-      "source": "community"
-    },
-    {
-      "id": "gh_33",
       "word": "checkpointer",
-      "cat": "社区·深度学习 · AI / 其他",
       "explain": "checkpointer：面试中需能解释其含义，并结合项目说明使用场景。",
       "homo": "克-赫-伊-克-克-普-欧-因特",
       "ipa": "/tʃekpɒɪntə/",
@@ -86,15 +51,10 @@
       "compare": "—",
       "oneliner": "能说明 checkpointer 的含义，并举例它在项目中的用法。",
       "trouble": [],
-      "issueNumber": 33,
-      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/33",
-      "createdAt": "2026-08-19T01:15:58Z",
-      "source": "community"
+      "cat": "社区·深度学习 · AI / 其他"
     },
     {
-      "id": "gh_31",
       "word": "adminopen",
-      "cat": "社区·未分类",
       "explain": "adminopen：面试中需能解释其含义，并结合项目说明使用场景。",
       "homo": "阿-德-姆-伊-恩-欧-普-伊-恩",
       "ipa": "/ædmɪnɒpen/",
@@ -104,15 +64,10 @@
       "compare": "—",
       "oneliner": "能说明 adminopen 的含义，并举例它在项目中的用法。",
       "trouble": [],
-      "issueNumber": 31,
-      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/31",
-      "createdAt": "2026-08-17T02:30:02Z",
-      "source": "community"
+      "cat": "社区·未分类"
     },
     {
-      "id": "gh_22",
       "word": "for",
-      "cat": "社区投稿",
       "explain": "for：技术面试常见术语，建议结合项目场景理解。",
       "homo": "弗-尔",
       "ipa": "英 /fɔː(r); fə(r)/  美 /fɔːr; fər/",
@@ -122,15 +77,10 @@
       "compare": "—",
       "oneliner": "一句话：for：技术面试常见术语，建议结合项目场景理解。",
       "trouble": [],
-      "issueNumber": 22,
-      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/22",
-      "createdAt": "2026-08-17T01:26:06Z",
-      "source": "community"
+      "cat": "社区投稿"
     },
     {
-      "id": "gh_19",
       "word": "delete",
-      "cat": "社区投稿",
       "explain": "delete：技术面试常见术语，建议结合项目场景理解。",
       "homo": "德-诶-勒-诶-特-诶",
       "ipa": "/dɪˈliːt/",
@@ -140,15 +90,10 @@
       "compare": "—",
       "oneliner": "一句话：delete：技术面试常见术语，建议结合项目场景理解。",
       "trouble": [],
-      "issueNumber": 19,
-      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/19",
-      "createdAt": "2026-08-17T01:22:27Z",
-      "source": "community"
+      "cat": "社区投稿"
     },
     {
-      "id": "gh_17",
       "word": "idemmode",
-      "cat": "社区投稿",
       "explain": "idemmode：技术面试常见术语，建议结合项目场景理解。",
       "homo": "伊-德-诶-姆-姆-德-诶",
       "ipa": "",
@@ -158,15 +103,10 @@
       "compare": "—",
       "oneliner": "一句话：idemmode：技术面试常见术语，建议结合项目场景理解。",
       "trouble": [],
-      "issueNumber": 17,
-      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/17",
-      "createdAt": "2026-08-17T01:22:07Z",
-      "source": "community"
+      "cat": "社区投稿"
     },
     {
-      "id": "gh_15",
       "word": "add",
-      "cat": "社区投稿",
       "explain": "添加的行为或实例。",
       "homo": "阿-德",
       "ipa": "/æd/",
@@ -176,51 +116,10 @@
       "compare": "coalesce / join / unite",
       "oneliner": "一句话：添加的行为或实例。",
       "trouble": [],
-      "issueNumber": 15,
-      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/15",
-      "createdAt": "2026-08-17T01:21:16Z",
-      "source": "community"
+      "cat": "社区投稿"
     },
     {
-      "id": "gh_13",
-      "word": "is",
-      "cat": "社区投稿",
-      "explain": "is：技术面试常见术语，建议结合项目场景理解。",
-      "homo": "伊-斯",
-      "ipa": "/ɪz/",
-      "pron": "/ɪz/",
-      "tech": "通用",
-      "level": "了解",
-      "compare": "—",
-      "oneliner": "一句话：is：技术面试常见术语，建议结合项目场景理解。",
-      "trouble": [],
-      "issueNumber": 13,
-      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/13",
-      "createdAt": "2026-08-17T01:02:46Z",
-      "source": "community"
-    },
-    {
-      "id": "gh_12",
-      "word": "is",
-      "cat": "社区投稿",
-      "explain": "is：技术面试常见术语，建议结合项目场景理解。",
-      "homo": "伊-斯",
-      "ipa": "/ɪz/",
-      "pron": "/ɪz/",
-      "tech": "通用",
-      "level": "了解",
-      "compare": "—",
-      "oneliner": "一句话：is：技术面试常见术语，建议结合项目场景理解。",
-      "trouble": [],
-      "issueNumber": 12,
-      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/12",
-      "createdAt": "2026-08-17T01:02:32Z",
-      "source": "community"
-    },
-    {
-      "id": "gh_11",
       "word": "IS",
-      "cat": "社区投稿",
       "explain": "IS：技术面试常见术语，建议结合项目场景理解。",
       "homo": "伊-斯",
       "ipa": "/ɪz/",
@@ -230,15 +129,10 @@
       "compare": "—",
       "oneliner": "一句话：IS：技术面试常见术语，建议结合项目场景理解。",
       "trouble": [],
-      "issueNumber": 11,
-      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/11",
-      "createdAt": "2026-08-17T01:02:17Z",
-      "source": "community"
+      "cat": "社区投稿"
     },
     {
-      "id": "gh_8",
       "word": "pink",
-      "cat": "社区投稿",
       "explain": "常见的小鱼， Phoxinus phoxinus。",
       "homo": "普-伊-恩-克",
       "ipa": "/pɪŋk/",
@@ -248,28 +142,20 @@
       "compare": "—",
       "oneliner": "一句话：常见的小鱼， Phoxinus phoxinus。",
       "trouble": [],
-      "issueNumber": 8,
-      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/8",
-      "createdAt": "2026-08-16T10:55:13Z",
-      "source": "community"
+      "cat": "社区投稿"
     },
     {
-      "id": "gh_6",
       "word": "apple",
-      "cat": "社区投稿",
       "explain": "一种常见的圆形果实，由Malus domestica树生产，在温和的气候下种植。",
       "homo": "阿-普-呃-勒",
-      "ipa": "/ˈæp(ə)l/",
-      "pron": "/ˈæp(ə)l/",
+      "ipa": "/ˈæp.əl/",
+      "pron": "/ˈæp.əl/",
       "tech": "通用",
       "level": "了解",
       "compare": "—",
       "oneliner": "一句话：一种常见的圆形果实，由Malus domestica树生产，在温和的气候下种植。",
       "trouble": [],
-      "issueNumber": 6,
-      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/6",
-      "createdAt": "2026-08-16T10:52:55Z",
-      "source": "community"
+      "cat": "社区投稿"
     }
   ]
 }
