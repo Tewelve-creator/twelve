@@ -1,6 +1,24 @@
 {
-  "updatedAt": "2026-08-21T00:37:29.341Z",
+  "updatedAt": "2026-08-21T00:44:49.758Z",
   "words": [
+    {
+      "id": "gh_36",
+      "word": "example",
+      "cat": "社区·未分类",
+      "explain": "平行或非常相似的案例，特别是作为先例或模型时。",
+      "homo": "伊-格-兹-阿-姆-普-勒",
+      "ipa": "/ɪɡˈzɑːmpl̩/",
+      "pron": "/ɪɡˈzɑːmpl̩/",
+      "tech": "通用",
+      "level": "了解",
+      "compare": "—",
+      "oneliner": "平行或非常相似的案例，特别是作为先例或模型时。",
+      "trouble": [],
+      "issueNumber": 36,
+      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/36",
+      "createdAt": "2026-08-21T00:44:37Z",
+      "source": "community"
+    },
     {
       "id": "gh_35",
       "word": "idepment",
