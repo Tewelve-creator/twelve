@@ -1,6 +1,24 @@
 {
-  "updatedAt": "2026-08-21T00:44:49.758Z",
+  "updatedAt": "2026-08-21T00:57:19.779Z",
   "words": [
+    {
+      "id": "gh_37",
+      "word": "prompt",
+      "cat": "社区·基础 · AI",
+      "explain": "提示词，引导模型输出",
+      "homo": "普-罗姆普特",
+      "ipa": "/prɒmpt/",
+      "pron": "/prɒmpt/",
+      "tech": "AI",
+      "level": "必问",
+      "compare": "System / Few-shot",
+      "oneliner": "引导模型输出的指令和上下文。",
+      "trouble": [],
+      "issueNumber": 37,
+      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/37",
+      "createdAt": "2026-08-21T00:57:10Z",
+      "source": "community"
+    },
     {
       "id": "gh_36",
       "word": "example",
