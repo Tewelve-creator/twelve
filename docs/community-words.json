@@ -1,6 +1,19 @@
 {
-  "updatedAt": "2026-08-21T23:53:55.563614Z",
+  "updatedAt": "2026-08-21T23:57:37.011825Z",
   "words": [
+    {
+      "word": "Reconciliation",
+      "explain": "Reconciliation：面试中需能解释其含义，并结合项目说明使用场景。",
+      "homo": "尔-诶-克-奥-恩-克-伊-勒-伊-阿-什-呃-恩",
+      "ipa": "/rekɒnkɪlɪæʃən/",
+      "pron": "/rekɒnkɪlɪæʃən/",
+      "tech": "通用",
+      "level": "了解",
+      "compare": "—",
+      "oneliner": "能说明 Reconciliation 的含义，并举例它在项目中的用法。",
+      "trouble": [],
+      "cat": "社区·未分类"
+    },
     {
       "word": "debounce",
       "explain": "防抖函数",
