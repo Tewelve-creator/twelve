@@ -1,6 +1,24 @@
 {
-  "updatedAt": "2026-08-21T00:21:19.307Z",
+  "updatedAt": "2026-08-21T00:37:29.341Z",
   "words": [
+    {
+      "id": "gh_35",
+      "word": "idepment",
+      "cat": "社区·未分类",
+      "explain": "idepment：面试中需能解释其含义，并结合项目说明使用场景。",
+      "homo": "伊-德-伊-普-门特",
+      "ipa": "/ɪdepmənt/",
+      "pron": "/ɪdepmənt/",
+      "tech": "通用",
+      "level": "了解",
+      "compare": "—",
+      "oneliner": "能说明 idepment 的含义，并举例它在项目中的用法。",
+      "trouble": [],
+      "issueNumber": 35,
+      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/35",
+      "createdAt": "2026-08-21T00:37:20Z",
+      "source": "community"
+    },
     {
       "id": "gh_34",
       "word": "example",
