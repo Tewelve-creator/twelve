@@ -519,7 +519,7 @@
     var seen = {}, merged = [];
     function add(card){
       var key = String(card.word || "").toLowerCase();
-      if(!key || seen[key]) return;
+      if(!key || seen[key] || isDeletedEntry(card)) return;
       seen[key] = true;
       merged.push(card);
     }
@@ -827,6 +827,14 @@
   function normalizeIpa(ipa){
     var s = String(ipa || "").trim();
     if(!s || s === "—") return "";
+    // 有道英/美双音标：原样保留
+    if(/英\s*\/|美\s*\//.test(s) || /英\s*\[|美\s*\[/.test(s)){
+      return s
+        .replace(/英\s*\[([^\]]+)\]/g, "英 /$1/")
+        .replace(/美\s*\[([^\]]+)\]/g, "美 /$1/")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
     s = s.replace(/^[\[\(]+|[\]\)]+$/g, "").trim();
     s = s.replace(/\s+/g, " ");
     s = s.replace(/[“”"']/g, "");
@@ -835,6 +843,67 @@
     s = s.replace(/\/+/g, "/");
     if(s === "//") return "";
     return s;
+  }
+
+  function formatYoudaoIpa(uk, us, phone){
+    function clean(x){
+      var t = String(x || "").trim();
+      if(!t || t === "—") return "";
+      if(t.length >= 2){
+        var pairs = [["[","]"],["(",")"],["/","/"]];
+        for(var i=0;i<pairs.length;i++){
+          if(t.charAt(0) === pairs[i][0] && t.charAt(t.length-1) === pairs[i][1]){
+            t = t.slice(1, -1).trim();
+            break;
+          }
+        }
+      }
+      return t;
+    }
+    uk = clean(uk); us = clean(us); phone = clean(phone);
+    if(uk && us){
+      if(uk === us) return "/" + uk + "/";
+      return "英 /" + uk + "/  美 /" + us + "/";
+    }
+    if(uk) return "/" + uk + "/";
+    if(us) return "/" + us + "/";
+    if(phone) return "/" + phone + "/";
+    return "";
+  }
+
+  function pickYoudaoPhones(data){
+    var uk = "", us = "", phone = "";
+    function take(obj){
+      if(!obj || typeof obj !== "object") return;
+      if(!uk) uk = obj.ukphone || obj["uk-phonetic"] || "";
+      if(!us) us = obj.usphone || obj["us-phonetic"] || "";
+      if(!phone) phone = obj.phone || obj.phonetic || "";
+    }
+    var simple = (data && data.simple && data.simple.word) || [];
+    simple.forEach(take);
+    var ec = (data && data.ec && data.ec.word) || [];
+    ec.forEach(take);
+    return formatYoudaoIpa(uk, us, phone);
+  }
+
+  async function fetchYoudaoIpa(word){
+    var q = String(word || "").trim();
+    if(!q) return "";
+    var target = "https://dict.youdao.com/jsonapi?q=" + encodeURIComponent(q) + "&le=en";
+    var urls = [
+      target,
+      "https://api.allorigins.win/raw?url=" + encodeURIComponent(target)
+    ];
+    for(var i = 0; i < urls.length; i++){
+      try{
+        var res = await fetch(urls[i], { headers: { Accept: "application/json" } });
+        if(!res.ok) continue;
+        var data = await res.json();
+        var ipa = pickYoudaoPhones(data);
+        if(ipa) return ipa;
+      }catch(e){}
+    }
+    return "";
   }
 
   function estimateIpa(word){
@@ -953,18 +1022,27 @@
   }
 
   function makeHomo(ipa, word){
-    var h = phoneticToHomo(ipa);
+    var src = String(ipa || "");
+    // 有道双音标时取英式一侧做谐音
+    var m = src.match(/英\s*\/([^\/]+)\//) || src.match(/\/([^\/]+)\//);
+    var h = phoneticToHomo(m ? m[1] : src);
     if(h && h.split("-").length >= 2) return h;
     var fb = wordToHomoFallback(word);
     return h || fb || String(word || "");
   }
 
   async function fetchDictionary(word){
+    var youdaoIpa = "";
+    try{ youdaoIpa = await fetchYoudaoIpa(word); }catch(e){}
+
     var res = await fetch("https://api.dictionaryapi.dev/api/v2/entries/en/" + encodeURIComponent(word));
-    if(!res.ok) throw new Error("dictionary " + res.status);
+    if(!res.ok){
+      if(youdaoIpa) return { ipa: youdaoIpa, explainEn: "", compare: "", pron: ipaToPron(youdaoIpa, word), _ipaSource: "有道词典" };
+      throw new Error("dictionary " + res.status);
+    }
     var data = await res.json();
     var entry = data[0] || {};
-    var ipa = pickBestIpa(entry);
+    var ipa = youdaoIpa || pickBestIpa(entry);
     var techRe = /comput|program|software|data|memory|network|server|code|algorithm|database|cache|api|object|class|function|hash|token|model|vector|thread|security|frontend|backend/i;
     var meanings = [];
     (entry.meanings || []).forEach(function(m){
@@ -975,7 +1053,13 @@
     (entry.meanings || []).forEach(function(m){
       (m.synonyms || []).forEach(function(s){ if(synonyms.indexOf(s) < 0) synonyms.push(s); });
     });
-    return { ipa: ipa, explainEn: meanings[0] || "", compare: synonyms.slice(0,3).join(" / "), pron: ipaToPron(ipa, word) };
+    return {
+      ipa: ipa,
+      explainEn: meanings[0] || "",
+      compare: synonyms.slice(0,3).join(" / "),
+      pron: ipaToPron(ipa, word),
+      _ipaSource: youdaoIpa ? "有道词典" : "Free Dictionary"
+    };
   }
 
   async function translateZh(text){
@@ -1165,13 +1249,15 @@
         var zh = await translateZh(dict.explainEn);
         result.explain = normalizeExplain(word, zh || dict.explainEn);
       }
-      result._source = "词典+翻译 · 分类/音标/技术栈/重要程度已自动判断";
+      result._source = (dict._ipaSource === "有道词典" ? "有道音标 + 词典释义" : "词典+翻译") + " · 分类/技术栈/重要程度已自动判断";
     }catch(e){
+      var yd = "";
+      try{ yd = await fetchYoudaoIpa(word); }catch(err){}
       result.explain = normalizeExplain(word, "");
-      result.ipa = resolveIpa("", word) || "—";
+      result.ipa = resolveIpa(yd, word) || "—";
       result.pron = result.ipa;
-      result.homo = makeHomo("", word);
-      result._source = "基础推断 · 已自动判断分类与重要程度";
+      result.homo = makeHomo(yd || result.ipa, word);
+      result._source = yd ? "有道音标 · 基础推断" : "基础推断 · 已自动判断分类与重要程度";
     }
 
     result.techs = guessTechs(word, result.explain + " " + result.compare);
@@ -1240,9 +1326,21 @@
     return (key && set.has(key)) || (w.id && set.has(String(w.id)));
   }
 
+  function dropLocalWord(word, id){
+    var key = String(word || "").trim().toLowerCase();
+    function keep(w){
+      var sameWord = String(w.word || "").trim().toLowerCase() === key;
+      var sameId = id && String(w.id || "") === String(id);
+      return !sameWord && !sameId;
+    }
+    COMMUNITY = COMMUNITY.filter(keep);
+    BASE = BASE.filter(keep);
+  }
+
   async function deleteCommunityWord(word, id, issueNumber){
     if(!confirm("确定删除「" + word + "」？删除后其他人刷新也将不再看到。")) return;
     var token = getSubmitToken();
+    var synced = false;
     if(issueNumber && token){
       try{
         var res = await fetch("https://api.github.com/repos/" + ISSUE_REPO + "/issues/" + issueNumber, {
@@ -1257,23 +1355,20 @@
         });
         var data = await res.json().catch(function(){ return {}; });
         if(!res.ok) throw new Error(data.message || ("GitHub " + res.status));
+        synced = true;
       }catch(err){
-        setQuickMsg(err.message || "删除失败", true);
+        setQuickMsg("无法同步删除：" + (err.message || "GitHub 请求失败"), true);
         return;
       }
     } else if(issueNumber && !token){
       if(!confirm("当前无法同步到 GitHub，仅从本页移除。确定继续？")) return;
     }
     markDeleted(word, id);
-    COMMUNITY = COMMUNITY.filter(function(w){
-      var sameWord = String(w.word || "").trim().toLowerCase() === String(word).trim().toLowerCase();
-      var sameId = id && String(w.id || "") === String(id);
-      return !sameWord && !sameId;
-    });
+    dropLocalWord(word, id);
     rebuildData();
     refreshChips();
     render();
-    setQuickMsg("已删除「" + word + "」" + (issueNumber && token ? "，正在同步到 Excel…" : issueNumber ? "（仅本页，未同步 GitHub）" : "。"), false, true);
+    setQuickMsg("已删除「" + word + "」" + (synced ? "，正在从词库和 Excel 移除…" : "。"), false, true);
     setTimeout(function(){ refreshCommunity(); }, 2500);
   }
 

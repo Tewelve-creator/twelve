@@ -83,7 +83,24 @@ def load_community_words() -> list[dict]:
     return list(dedup.values())
 
 
-def word_to_row(w: dict) -> list[str]:
+def enrich_ipa(w: dict, cache: dict | None = None) -> str:
+    """优先用已有音标；缺失或明显占位时用有道词典补全。"""
+    from youdao_ipa import fetch_youdao_ipa_cached, format_youdao_ipa
+
+    word = str(w.get("word") or "").strip()
+    ipa = str(w.get("ipa") or "").strip()
+    if ipa and ipa not in {"—", "-", "/—/"} and ("/" in ipa or "英" in ipa or "美" in ipa):
+        # 已是规范音标；若只有一侧也可保留
+        if "英" in ipa or "美" in ipa or ipa.startswith("/"):
+            return ipa
+    if not word:
+        return ipa
+    store = cache if cache is not None else {}
+    yd = fetch_youdao_ipa_cached(word, store)
+    return yd or ipa or format_youdao_ipa("", "", "")
+
+
+def word_to_row(w: dict, ipa_cache: dict | None = None) -> list[str]:
     trouble = w.get("trouble") or []
     cat = str(w.get("cat") or "").strip()
     if not cat:
@@ -92,13 +109,15 @@ def word_to_row(w: dict) -> list[str]:
         else:
             cat = "未分类"
     tech = str(w.get("tech") or "用户投稿").strip() or "用户投稿"
+    ipa = enrich_ipa(w, ipa_cache)
+    pron = str(w.get("pron") or "").strip() or ipa
     return [
         cat,
         str(w.get("word") or "").strip(),
         str(w.get("explain") or "").strip(),
         str(w.get("homo") or "").strip(),
-        str(w.get("ipa") or "").strip(),
-        str(w.get("pron") or "").strip(),
+        ipa,
+        pron,
         tech,
         str(w.get("level") or "了解").strip() or "了解",
         str(w.get("compare") or w.get("note") or "—").strip() or "—",
@@ -116,7 +135,7 @@ def ensure_header_row(ws) -> None:
             ws.cell(1, i).value = name
 
 
-def sync_community_sheet(wb, community: list[dict]) -> int:
+def sync_community_sheet(wb, community: list[dict], ipa_cache: dict | None = None) -> int:
     """新建/重建「社区添加单词」表，只存放网站社区投稿。"""
     if COMMUNITY_SHEET in wb.sheetnames:
         ws = wb[COMMUNITY_SHEET]
@@ -129,8 +148,9 @@ def sync_community_sheet(wb, community: list[dict]) -> int:
     ws.append(HEADER)
     rows = []
     seen = set()
+    cache = ipa_cache if ipa_cache is not None else {}
     for w in community:
-        row = word_to_row(w)
+        row = word_to_row(w, cache)
         key = row[1].strip().lower()
         if not key or key in seen:
             continue
@@ -143,6 +163,49 @@ def sync_community_sheet(wb, community: list[dict]) -> int:
     return len(rows)
 
 
+def community_sheet_explains(wb) -> dict[str, str]:
+    """word_lower -> explain currently stored on the community sheet."""
+    if COMMUNITY_SHEET not in wb.sheetnames:
+        return {}
+    ws = wb[COMMUNITY_SHEET]
+    out: dict[str, str] = {}
+    for row in ws.iter_rows(min_row=2, max_col=3, values_only=True):
+        if not row or row[1] is None or not str(row[1]).strip():
+            continue
+        out[str(row[1]).strip().lower()] = str(row[2] or "").strip()
+    return out
+
+
+def looks_like_community_summary_row(cat: str, explain: str, community_explain: str) -> bool:
+    cat = (cat or "").strip()
+    explain = (explain or "").strip()
+    community_explain = (community_explain or "").strip()
+    if cat.startswith("社区"):
+        return True
+    if community_explain and explain == community_explain:
+        return True
+    return "面试中需能解释其含义" in explain or "技术面试常见术语" in explain
+
+
+def remove_dropped_community_from_summary(ws, dropped: dict[str, str]) -> int:
+    if not dropped:
+        return 0
+    removed = 0
+    for i in range(ws.max_row, 1, -1):
+        word = ws.cell(i, 2).value
+        if word is None or not str(word).strip():
+            continue
+        key = str(word).strip().lower()
+        if key not in dropped:
+            continue
+        cat = str(ws.cell(i, 1).value or "")
+        explain = str(ws.cell(i, 3).value or "")
+        if looks_like_community_summary_row(cat, explain, dropped[key]):
+            ws.delete_rows(i)
+            removed += 1
+    return removed
+
+
 def merge_into_workbook(xlsx_path: Path, community: list[dict]) -> tuple[int, int, int]:
     import openpyxl
 
@@ -152,21 +215,50 @@ def merge_into_workbook(xlsx_path: Path, community: list[dict]) -> tuple[int, in
     ws = wb["全部汇总"]
     ensure_header_row(ws)
 
+    old_community = community_sheet_explains(wb)
+    new_keys = {
+        str(w.get("word") or "").strip().lower()
+        for w in community
+        if str(w.get("word") or "").strip()
+    }
+    dropped = {k: v for k, v in old_community.items() if k not in new_keys}
+    removed = remove_dropped_community_from_summary(ws, dropped)
+    if removed:
+        print(f"removed {removed} deleted community word(s) from 全部汇总")
+
     existing = set()
     for row in ws.iter_rows(min_row=2, max_col=2, values_only=True):
         if row and len(row) > 1 and row[1] is not None and str(row[1]).strip():
             existing.add(str(row[1]).strip().lower())
 
+    ipa_cache: dict = {}
     added = 0
     for w in community:
         key = str(w.get("word") or "").strip().lower()
         if not key or key in existing:
             continue
-        ws.append(word_to_row(w))
+        ws.append(word_to_row(w, ipa_cache))
         existing.add(key)
         added += 1
 
-    community_n = sync_community_sheet(wb, community)
+    community_n = sync_community_sheet(wb, community, ipa_cache)
+
+    # 回写 community-words.json 的有道音标，方便站点直接展示
+    try:
+        for w in community:
+            if not isinstance(w, dict):
+                continue
+            ipa = enrich_ipa(w, ipa_cache)
+            if ipa:
+                w["ipa"] = ipa
+                w["pron"] = ipa
+        COMMUNITY_JSON.write_text(
+            json.dumps({"updatedAt": __import__("datetime").datetime.utcnow().isoformat() + "Z", "words": community}, ensure_ascii=False, indent=2)
+            + "\n",
+            encoding="utf-8",
+        )
+    except Exception as e:
+        print("community-words ipa rewrite skipped:", e)
 
     total = sum(
         1
