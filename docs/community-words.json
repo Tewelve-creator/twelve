@@ -1,6 +1,19 @@
 {
-  "updatedAt": "2026-08-21T01:10:24.947812Z",
+  "updatedAt": "2026-08-21T23:53:55.563614Z",
   "words": [
+    {
+      "word": "debounce",
+      "explain": "防抖函数",
+      "homo": "迪邦斯",
+      "ipa": "/dibauns/",
+      "pron": "/dibauns/",
+      "tech": "Java",
+      "level": "了解",
+      "compare": "Debounce / Throttle",
+      "oneliner": "防抖函数。",
+      "trouble": [],
+      "cat": "社区·JavaScript常用单词"
+    },
     {
       "word": "prompt",
       "explain": "提示词，引导模型输出",
