@@ -1,6 +1,24 @@
 {
-  "updatedAt": "2026-08-19T01:16:09.612Z",
+  "updatedAt": "2026-08-21T00:21:19.307Z",
   "words": [
+    {
+      "id": "gh_34",
+      "word": "example",
+      "cat": "社区·未分类",
+      "explain": "example：面试中需能解释其含义，并结合项目说明使用场景。",
+      "homo": "伊-克斯-阿-姆-普-勒-伊",
+      "ipa": "/eksæmpəl/",
+      "pron": "/eksæmpəl/",
+      "tech": "通用",
+      "level": "了解",
+      "compare": "—",
+      "oneliner": "能说明 example 的含义，并举例它在项目中的用法。",
+      "trouble": [],
+      "issueNumber": 34,
+      "issueUrl": "https://github.com/Tewelve-creator/twelve/issues/34",
+      "createdAt": "2026-08-21T00:21:10Z",
+      "source": "community"
+    },
     {
       "id": "gh_33",
       "word": "checkpointer",
