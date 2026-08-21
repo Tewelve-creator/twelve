@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-21T01:03:22.434885Z",
+  "updatedAt": "2026-08-21T01:10:24.947812Z",
   "words": [
     {
       "word": "prompt",
@@ -39,19 +39,6 @@
       "oneliner": "能说明 idepment 的含义，并举例它在项目中的用法。",
       "trouble": [],
       "cat": "社区·未分类"
-    },
-    {
-      "word": "checkpointer",
-      "explain": "checkpointer：面试中需能解释其含义，并结合项目说明使用场景。",
-      "homo": "克-赫-伊-克-克-普-欧-因特",
-      "ipa": "/tʃekpɒɪntə/",
-      "pron": "/tʃekpɒɪntə/",
-      "tech": "AI / 其他",
-      "level": "常问",
-      "compare": "—",
-      "oneliner": "能说明 checkpointer 的含义，并举例它在项目中的用法。",
-      "trouble": [],
-      "cat": "社区·深度学习 · AI / 其他"
     },
     {
       "word": "adminopen",
