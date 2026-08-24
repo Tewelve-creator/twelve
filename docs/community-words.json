@@ -1,6 +1,19 @@
 {
-  "updatedAt": "2026-08-21T23:57:37.011825Z",
+  "updatedAt": "2026-08-24T03:49:15.866095Z",
   "words": [
+    {
+      "word": "checkpoint",
+      "explain": "某一时刻保存的模型权重。",
+      "homo": "切克点特",
+      "ipa": "/ˈtʃekpɔɪnt/",
+      "pron": "/ˈtʃekpɔɪnt/",
+      "tech": "AI / 其他",
+      "level": "常问",
+      "compare": "save / resume",
+      "oneliner": "按验证集最优存盘，方便回滚和续训。",
+      "trouble": [],
+      "cat": "社区·深度学习 · AI / 其他"
+    },
     {
       "word": "Reconciliation",
       "explain": "Reconciliation：面试中需能解释其含义，并结合项目说明使用场景。",
