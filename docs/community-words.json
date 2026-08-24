@@ -1,6 +1,19 @@
 {
-  "updatedAt": "2026-08-24T03:49:15.866095Z",
+  "updatedAt": "2026-08-24T06:59:13.960546Z",
   "words": [
+    {
+      "word": "MemoryStore",
+      "explain": "MemoryStore：面试中需能解释其含义，并结合项目说明使用场景。",
+      "homo": "姆-诶-姆-奥-伊-斯-特-奥-诶",
+      "ipa": "/memɔːɪstɔːe/",
+      "pron": "/memɔːɪstɔːe/",
+      "tech": "RAG / 数据库",
+      "level": "常问",
+      "compare": "—",
+      "oneliner": "能说明 MemoryStore 的含义，并举例它在项目中的用法。",
+      "trouble": [],
+      "cat": "社区·RAG · 数据库"
+    },
     {
       "word": "checkpoint",
       "explain": "某一时刻保存的模型权重。",
