@@ -1,6 +1,19 @@
 {
-  "updatedAt": "2026-08-24T06:59:13.960546Z",
+  "updatedAt": "2026-09-04T03:34:37.556109Z",
   "words": [
+    {
+      "word": "vue",
+      "explain": "渐进式JavaScript框架",
+      "homo": "维尤",
+      "ipa": "/vjuː/",
+      "pron": "/vjuː/",
+      "tech": "前端",
+      "level": "必问",
+      "compare": "React",
+      "oneliner": "渐进式前端框架，模板+响应式数据驱动视图。",
+      "trouble": [],
+      "cat": "社区·Vue · 前端"
+    },
     {
       "word": "MemoryStore",
       "explain": "MemoryStore：面试中需能解释其含义，并结合项目说明使用场景。",
