@@ -1,13 +1,8 @@
 name: Sync community words
 
+# Site disabled — workflow kept but not auto-triggered.
 on:
-  issues:
-    types: [opened, edited, labeled, unlabeled, closed, reopened]
   workflow_dispatch:
-  schedule:
-    # 兜底：即使偶发漏触发，也会定期把社区词写入 Excel
-    - cron: "*/30 * * * *"
-
 
 permissions:
   contents: write
@@ -15,7 +10,7 @@ permissions:
 
 jobs:
   sync:
-    if: github.event_name == 'workflow_dispatch' || contains(join(github.event.issue.labels.*.name, ','), 'word-submission') || github.event.action == 'unlabeled' || github.event.action == 'closed' || github.event.action == 'reopened'
+    if: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
